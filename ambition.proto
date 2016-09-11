@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package ambition;
+
+import "google/api/annotations.proto";
+
+service AmbitionService {
+  rpc CreateAction(CreateActionRequest) returns (CreateActionResponse) {
+    option (google.api.http) = {
+      post: "/action"
+      body: "*"
+    };
+  }
+
+  rpc CreateOccurrence(CreateOccurrenceRequest) returns (CreateOccurrenceResponse) {
+    option (google.api.http) = {
+      post: "/action/{ActionId}"
+      body: "*"
+    };
+  }
+
+}
+
+message CreateActionRequest {
+  int64 UserId = 1;
+  string ActionName = 2;
+}
+
+message CreateActionResponse {
+  int64 ActionId = 1;
+}
+
+message CreateOccurrenceRequest {
+  int64 ActionId = 1;
+  int64 EpocTime = 2;
+}
+
+message CreateOccurrenceResponse {
+  int64 OccurrenceId = 1;
+  int64 ActionId = 2;
+}
+
