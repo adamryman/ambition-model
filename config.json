@@ -1,0 +1,10 @@
+{
+	"DBName" : "ambition",
+	"DBUser" : "ambition",
+	"DBPassword" : "ambition",
+	"DBLocal" : false,
+	"DBHost" : "localhost",
+	"DBPort" : 5432,
+	"DBSSL" : "disable",
+	"AmbitionPort" : 3000
+}

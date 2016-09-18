@@ -28,6 +28,8 @@ message CreateActionRequest {
 
 message CreateActionResponse {
   int64 ActionId = 1;
+  int64 UserId = 2;
+  string ActionName = 3;
 }
 
 message CreateOccurrenceRequest {
@@ -38,5 +40,6 @@ message CreateOccurrenceRequest {
 message CreateOccurrenceResponse {
   int64 OccurrenceId = 1;
   int64 ActionId = 2;
+  int64 EpocTime = 3;
 }
 
