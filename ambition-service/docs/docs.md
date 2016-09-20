@@ -105,6 +105,7 @@ th:nth-child(4) {
 | ActionId | TYPE_INT64 | 1 |  |
 | UserId | TYPE_INT64 | 2 |  |
 | ActionName | TYPE_STRING | 3 |  |
+| Error | TYPE_STRING | 4 |  |
 
 <a name="CreateOccurrenceRequest"></a>
 
@@ -124,6 +125,7 @@ th:nth-child(4) {
 | OccurrenceId | TYPE_INT64 | 1 |  |
 | ActionId | TYPE_INT64 | 2 |  |
 | EpocTime | TYPE_INT64 | 3 |  |
+| Error | TYPE_STRING | 4 |  |
 
 ### Services
 

@@ -67,7 +67,8 @@ func (db database) InsertAction(req *pb.CreateActionRequest) (*pb.CreateActionRe
 
 	id, err := db.exec(query, req.ActionName, req.UserId)
 	if err != nil {
-		return nil, err
+		action.Error = err.Error()
+		return action, err
 	}
 
 	action.ActionId = id
@@ -83,7 +84,8 @@ func (db database) InsertOccurrence(req *pb.CreateOccurrenceRequest) (*pb.Create
 
 	id, err := db.exec(query, req.ActionId, req.EpocTime)
 	if err != nil {
-		return nil, err
+		occurrence.Error = err.Error()
+		return occurrence, err
 	}
 
 	occurrence.OccurrenceId = id

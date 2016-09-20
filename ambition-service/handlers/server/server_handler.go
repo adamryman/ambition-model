@@ -20,9 +20,6 @@ import (
 )
 
 // NewService returns a naïve, stateless implementation of Service.
-func NewService() Service {
-	return ambitionService{}
-}
 
 type ambitionService struct{}
 
@@ -30,14 +27,12 @@ type ambitionService struct{}
 func (s ambitionService) CreateAction(ctx context.Context, in *pb.CreateActionRequest) (*pb.CreateActionResponse, error) {
 	_ = ctx
 	_ = in
-	var response pb.CreateActionResponse
 
 	db := database.Database()
 	action, err := db.InsertAction(in)
 
 	if err != nil {
-		fmt.Println(err)
-		return &response, err
+		return action, err
 	}
 
 	return action, nil
@@ -52,7 +47,7 @@ func (s ambitionService) CreateOccurrence(ctx context.Context, in *pb.CreateOccu
 	occurrence, err := db.InsertOccurrence(in)
 
 	if err != nil {
-		return nil, err
+		return occurrence, err
 	}
 
 	return occurrence, nil
