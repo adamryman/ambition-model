@@ -5,7 +5,6 @@ package handler
 
 import (
 	_ "errors"
-	"fmt"
 	_ "time"
 
 	"golang.org/x/net/context"
@@ -22,6 +21,10 @@ import (
 // NewService returns a naïve, stateless implementation of Service.
 
 type ambitionService struct{}
+
+func NewService() Service {
+	return ambitionService{}
+}
 
 // CreateAction implements Service.
 func (s ambitionService) CreateAction(ctx context.Context, in *pb.CreateActionRequest) (*pb.CreateActionResponse, error) {
