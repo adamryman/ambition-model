@@ -19,8 +19,8 @@ import (
 	httptransport "github.com/go-kit/kit/transport/http"
 
 	// This Service
-	svc "github.com/adamryman/ambition-truss/ambition-service/generated"
-	handler "github.com/adamryman/ambition-truss/ambition-service/handlers/server"
+	svc "github.com/adamryman/ambition-truss/ambition/ambition-service/generated"
+	handler "github.com/adamryman/ambition-truss/ambition/ambition-service/handlers/server"
 )
 
 var (

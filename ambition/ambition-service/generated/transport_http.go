@@ -23,7 +23,7 @@ import (
 	httptransport "github.com/go-kit/kit/transport/http"
 
 	// This service
-	pb "github.com/adamryman/ambition-truss/ambition-service"
+	pb "github.com/adamryman/ambition-truss/ambition/ambition-service"
 )
 
 var (

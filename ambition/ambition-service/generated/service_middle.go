@@ -12,7 +12,7 @@ import (
 //_ "github.com/go-kit/kit/log"
 //_ "github.com/go-kit/kit/metrics"
 
-//pb "github.com/adamryman/ambition-truss/ambition-service"
+//pb "github.com/adamryman/ambition-truss/ambition/ambition-service"
 )
 
 // Middleware describes a service (as opposed to endpoint) middleware.

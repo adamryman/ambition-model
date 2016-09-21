@@ -12,7 +12,7 @@ import (
 	grpctransport "github.com/go-kit/kit/transport/grpc"
 
 	// This Service
-	pb "github.com/adamryman/ambition-truss/ambition-service"
+	pb "github.com/adamryman/ambition-truss/ambition/ambition-service"
 )
 
 // MakeGRPCServer makes a set of endpoints available as a gRPC AddServer.

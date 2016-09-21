@@ -15,8 +15,8 @@ import (
 	//_ "github.com/go-kit/kit/log"
 	//_ "github.com/go-kit/kit/metrics"
 
-	pb "github.com/adamryman/ambition-truss/ambition-service"
-	handler "github.com/adamryman/ambition-truss/ambition-service/handlers/server"
+	pb "github.com/adamryman/ambition-truss/ambition/ambition-service"
+	handler "github.com/adamryman/ambition-truss/ambition/ambition-service/handlers/server"
 )
 
 // Endpoints collects all of the endpoints that compose an add service. It's

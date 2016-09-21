@@ -30,9 +30,9 @@ import (
 	//"github.com/go-kit/kit/tracing/opentracing"
 
 	// This Service
-	pb "github.com/adamryman/ambition-truss/ambition-service"
-	svc "github.com/adamryman/ambition-truss/ambition-service/generated"
-	handler "github.com/adamryman/ambition-truss/ambition-service/handlers/server"
+	pb "github.com/adamryman/ambition-truss/ambition/ambition-service"
+	svc "github.com/adamryman/ambition-truss/ambition/ambition-service/generated"
+	handler "github.com/adamryman/ambition-truss/ambition/ambition-service/handlers/server"
 )
 
 func main() {

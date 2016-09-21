@@ -18,10 +18,10 @@ import (
 	//"github.com/go-kit/kit/log"
 
 	// This Service
-	grpcclient "github.com/adamryman/ambition-truss/ambition-service/generated/client/grpc"
-	httpclient "github.com/adamryman/ambition-truss/ambition-service/generated/client/http"
-	clientHandler "github.com/adamryman/ambition-truss/ambition-service/handlers/client"
-	handler "github.com/adamryman/ambition-truss/ambition-service/handlers/server"
+	grpcclient "github.com/adamryman/ambition-truss/ambition/ambition-service/generated/client/grpc"
+	httpclient "github.com/adamryman/ambition-truss/ambition/ambition-service/generated/client/http"
+	clientHandler "github.com/adamryman/ambition-truss/ambition/ambition-service/handlers/client"
+	handler "github.com/adamryman/ambition-truss/ambition/ambition-service/handlers/server"
 )
 
 func main() {
@@ -42,10 +42,10 @@ func main() {
 	)
 
 	var (
-		ActionIdCreateOccurrence = flag.Int64("createoccurrence.actionid", 0, "")
-		EpocTimeCreateOccurrence = flag.Int64("createoccurrence.epoctime", 0, "")
 		UserIdCreateAction       = flag.Int64("createaction.userid", 0, "")
 		ActionNameCreateAction   = flag.String("createaction.actionname", "", "")
+		ActionIdCreateOccurrence = flag.Int64("createoccurrence.actionid", 0, "")
+		EpocTimeCreateOccurrence = flag.Int64("createoccurrence.epoctime", 0, "")
 	)
 	flag.Parse()
 

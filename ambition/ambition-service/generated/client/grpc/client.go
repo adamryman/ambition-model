@@ -17,9 +17,9 @@ import (
 	grpctransport "github.com/go-kit/kit/transport/grpc"
 
 	// This Service
-	pb "github.com/adamryman/ambition-truss/ambition-service"
-	svc "github.com/adamryman/ambition-truss/ambition-service/generated"
-	handler "github.com/adamryman/ambition-truss/ambition-service/handlers/server"
+	pb "github.com/adamryman/ambition-truss/ambition/ambition-service"
+	svc "github.com/adamryman/ambition-truss/ambition/ambition-service/generated"
+	handler "github.com/adamryman/ambition-truss/ambition/ambition-service/handlers/server"
 )
 
 // New returns an AddService backed by a gRPC client connection. It is the
