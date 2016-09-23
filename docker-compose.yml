@@ -1,0 +1,15 @@
+version: '2'
+services:
+  mysql:
+    image: mysql
+    expose:
+      - "3306"
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ambition
+      MYSQL_DATABASE: ambition
+      MYSQL_USER: ambition
+      MYSQL_PASSWORD: ambition
+    volumes:
+      - ./mysql:/docker-entrypoint-initdb.d 
