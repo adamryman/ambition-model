@@ -13,3 +13,7 @@ services:
       MYSQL_PASSWORD: ambition
     volumes:
       - ./mysql:/docker-entrypoint-initdb.d 
+  ambition:
+    build: ./ambition
+    depends_on:
+      - mysql
