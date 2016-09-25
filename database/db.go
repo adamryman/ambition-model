@@ -80,7 +80,7 @@ func (db database) InsertAction(req *pb.CreateActionRequest) (*pb.CreateActionRe
 
 func (db database) InsertOccurrence(req *pb.CreateOccurrenceRequest) (*pb.CreateOccurrenceResponse, error) {
 	var occurrence pb.CreateOccurrenceResponse
-	const query = `INSERT INTO occurrences (action_id, time) VALUES ($1, $2)`
+	const query = `INSERT occurrences SET action_id=?, time=?`
 
 	id, err := db.exec(query, req.ActionId, req.EpocTime)
 	if err != nil {
