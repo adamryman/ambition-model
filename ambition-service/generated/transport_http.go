@@ -200,7 +200,7 @@ func DecodeHTTPCreateOccurrenceResponse(_ context.Context, r *http.Response) (in
 // the http request (path, query, and body).
 func EncodeHTTPCreateActionZeroRequest(_ context.Context, r *http.Request, request interface{}) error {
 	fmt.Printf("Encoding request %v\n", request)
-	req := request.(pb.CreateActionRequest)
+	req := request.(*pb.CreateActionRequest)
 	_ = req
 
 	// Set the path parameters
@@ -242,7 +242,7 @@ func EncodeHTTPCreateActionZeroRequest(_ context.Context, r *http.Request, reque
 // the http request (path, query, and body).
 func EncodeHTTPCreateOccurrenceZeroRequest(_ context.Context, r *http.Request, request interface{}) error {
 	fmt.Printf("Encoding request %v\n", request)
-	req := request.(pb.CreateOccurrenceRequest)
+	req := request.(*pb.CreateOccurrenceRequest)
 	_ = req
 
 	// Set the path parameters

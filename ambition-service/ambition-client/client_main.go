@@ -42,10 +42,10 @@ func main() {
 	)
 
 	var (
-		ActionIdCreateOccurrence = flag.Int64("createoccurrence.actionid", 0, "")
-		EpocTimeCreateOccurrence = flag.Int64("createoccurrence.epoctime", 0, "")
 		UserIdCreateAction       = flag.Int64("createaction.userid", 0, "")
 		ActionNameCreateAction   = flag.String("createaction.actionname", "", "")
+		ActionIdCreateOccurrence = flag.Int64("createoccurrence.actionid", 0, "")
+		EpocTimeCreateOccurrence = flag.Int64("createoccurrence.epoctime", 0, "")
 	)
 	flag.Parse()
 
