@@ -18,20 +18,25 @@ type database struct {
 
 var pg database
 
+type Configuration struct {
+	DBName     string
+	DBUser     string
+	DBPassword string
+	DBHost     string
+	DBPort     string
+}
+
 func init() {
-	homePath := os.Getenv("HOME")
-
-	config := ReadConfiguration(homePath + "/.config/ambition/config.json")
-
-	var dbString string
-
-	if config.DBLocal {
-		dbString = fmt.Sprintf("user=%s password=%s dbname=%s sslmode=%s",
-			config.DBUser, config.DBPassword, config.DBName, config.DBSSL)
-	} else {
-		dbString = fmt.Sprintf("%s:%s@/%s",
-			config.DBUser, config.DBPassword, config.DBName)
+	config := Configuration{
+		DBName:     os.Getenv("MYSQL_DATABASE"),
+		DBUser:     os.Getenv("MYSQL_USER"),
+		DBPassword: os.Getenv("MYSQL_PASSWORD"),
+		DBPort:     os.Getenv("MYSQL_PORT"),
+		DBHost:     os.Getenv("MYSQL_HOST"),
 	}
+
+	dbString := fmt.Sprintf("%s:%s@(%s:%s)/%s",
+		config.DBUser, config.DBPassword, config.DBHost, config.DBPort, config.DBName)
 
 	tempdb, err := sql.Open("mysql", dbString)
 

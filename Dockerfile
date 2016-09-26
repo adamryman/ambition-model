@@ -7,14 +7,10 @@ COPY . /go/src/github.com/adamryman/ambition-truss
 
 WORKDIR /go/src/github.com/adamryman/ambition-truss
 RUN git remote set-url origin https://github.com/adamryman/ambition-truss && \
-	go get -v -u ./...
+	go get -v ./...
 	
 RUN go install ./...
 
-RUN mkdir -p /home/.config/ambition
+ENV PORT 55440
 
-ENV HOME /home
-
-COPY ./config.json /home/.config/ambition
-
-ENTRYPOINT ambition-server
+ENTRYPOINT ambition-server -grpc.addr=:$PORT
