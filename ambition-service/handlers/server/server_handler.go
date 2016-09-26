@@ -26,12 +26,21 @@ func NewService() Service {
 	return ambitionService{}
 }
 
+var db *database.Database
+
 // CreateAction implements Service.
 func (s ambitionService) CreateAction(ctx context.Context, in *pb.CreateActionRequest) (*pb.CreateActionResponse, error) {
 	_ = ctx
 	_ = in
 
-	db := database.Database()
+	var err error
+	if db == nil {
+		db, err = database.New()
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	action, err := db.InsertAction(in)
 
 	if err != nil {
@@ -46,7 +55,14 @@ func (s ambitionService) CreateOccurrence(ctx context.Context, in *pb.CreateOccu
 	_ = ctx
 	_ = in
 
-	db := database.Database()
+	var err error
+	if db == nil {
+		db, err = database.New()
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	occurrence, err := db.InsertOccurrence(in)
 
 	if err != nil {

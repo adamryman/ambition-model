@@ -12,11 +12,9 @@ import (
 )
 
 // Database type to extend with custom functions
-type database struct {
+type Database struct {
 	db *sql.DB
 }
-
-var pg database
 
 type Configuration struct {
 	DBName     string
@@ -26,7 +24,7 @@ type Configuration struct {
 	DBPort     string
 }
 
-func init() {
+func New() (*Database, error) {
 	config := Configuration{
 		DBName:     os.Getenv("MYSQL_DATABASE"),
 		DBUser:     os.Getenv("MYSQL_USER"),
@@ -39,20 +37,22 @@ func init() {
 		config.DBUser, config.DBPassword, config.DBHost, config.DBPort, config.DBName)
 
 	tempdb, err := sql.Open("mysql", dbString)
+	if err != nil {
+		return nil, err
+
+	}
 
 	fmt.Printf("Error: %v\n", err)
 
-	pg = database{
+	database := Database{
 		db: tempdb,
 	}
-}
 
-func Database() database {
-	return pg
+	return &database, nil
 }
 
 // exec calls db.db.Exec with passed arguments and returns the id of the LastInsertId
-func (db database) exec(query string, args ...interface{}) (int64, error) {
+func (db *Database) exec(query string, args ...interface{}) (int64, error) {
 	resp, err := db.db.Exec(query, args...)
 	if err != nil {
 		return 0, errors.Wrapf(err, "unable to exec query: %v", query)
@@ -66,7 +66,7 @@ func (db database) exec(query string, args ...interface{}) (int64, error) {
 	return id, nil
 }
 
-func (db database) InsertAction(req *pb.CreateActionRequest) (*pb.CreateActionResponse, error) {
+func (db *Database) InsertAction(req *pb.CreateActionRequest) (*pb.CreateActionResponse, error) {
 	var action pb.CreateActionResponse
 	const query = `INSERT actions SET action_name=?, user_id=?`
 
@@ -83,7 +83,7 @@ func (db database) InsertAction(req *pb.CreateActionRequest) (*pb.CreateActionRe
 	return &action, nil
 }
 
-func (db database) InsertOccurrence(req *pb.CreateOccurrenceRequest) (*pb.CreateOccurrenceResponse, error) {
+func (db *Database) InsertOccurrence(req *pb.CreateOccurrenceRequest) (*pb.CreateOccurrenceResponse, error) {
 	var occurrence pb.CreateOccurrenceResponse
 	const query = `INSERT occurrences SET action_id=?, time=?`
 
