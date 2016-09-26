@@ -33,19 +33,21 @@ func New() (*Database, error) {
 		DBHost:     os.Getenv("MYSQL_HOST"),
 	}
 
-	dbString := fmt.Sprintf("%s:%s@(%s:%s)/%s",
-		config.DBUser, config.DBPassword, config.DBHost, config.DBPort, config.DBName)
+	dbString := fmt.Sprintf("%s:%s@tcp(0.0.0.0:3306)/%s",
+		config.DBUser, config.DBPassword, config.DBName)
 
 	tempdb, err := sql.Open("mysql", dbString)
 	if err != nil {
 		return nil, err
-
 	}
-
-	fmt.Printf("Error: %v\n", err)
 
 	database := Database{
 		db: tempdb,
+	}
+
+	err = database.db.Ping()
+	if err != nil {
+		return nil, err
 	}
 
 	return &database, nil

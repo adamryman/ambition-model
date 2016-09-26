@@ -2,7 +2,6 @@ FROM golang:1.7.1
 
 RUN mkdir -p /go/src/github.com/adamryman/ambition-truss
 
-
 COPY . /go/src/github.com/adamryman/ambition-truss
 
 WORKDIR /go/src/github.com/adamryman/ambition-truss
@@ -11,6 +10,10 @@ RUN git remote set-url origin https://github.com/adamryman/ambition-truss && \
 	
 RUN go install ./...
 
-ENV PORT 55440
+EXPOSE 55440
+EXPOSE 55439
 
-ENTRYPOINT ambition-server -grpc.addr=:$PORT
+ENV PORT 55440
+ENV HTTPPORT 55439
+
+ENTRYPOINT ambition-server -grpc.addr=:$PORT -http.addr=:$HTTPPORT
