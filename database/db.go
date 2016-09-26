@@ -24,6 +24,8 @@ type Configuration struct {
 	DBPort     string
 }
 
+var database Database
+
 func New() (*Database, error) {
 	config := Configuration{
 		DBName:     os.Getenv("MYSQL_DATABASE"),
@@ -33,28 +35,32 @@ func New() (*Database, error) {
 		DBHost:     os.Getenv("MYSQL_HOST"),
 	}
 
-	dbString := fmt.Sprintf("%s:%s@tcp(0.0.0.0:3306)/%s",
-		config.DBUser, config.DBPassword, config.DBName)
+	dbString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
+		config.DBUser, config.DBPassword, config.DBHost, config.DBPort, config.DBName)
 
 	tempdb, err := sql.Open("mysql", dbString)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "could not open db connection %v", dbString)
 	}
 
-	database := Database{
-		db: tempdb,
-	}
-
-	err = database.db.Ping()
+	err = tempdb.Ping()
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "could not ping database %v", dbString)
+	}
+
+	database = Database{
+		db: tempdb,
 	}
 
 	return &database, nil
 }
 
+func (db Database) Test() {
+
+}
+
 // exec calls db.db.Exec with passed arguments and returns the id of the LastInsertId
-func (db *Database) exec(query string, args ...interface{}) (int64, error) {
+func (db Database) exec(query string, args ...interface{}) (int64, error) {
 	resp, err := db.db.Exec(query, args...)
 	if err != nil {
 		return 0, errors.Wrapf(err, "unable to exec query: %v", query)
@@ -68,7 +74,7 @@ func (db *Database) exec(query string, args ...interface{}) (int64, error) {
 	return id, nil
 }
 
-func (db *Database) InsertAction(req *pb.CreateActionRequest) (*pb.CreateActionResponse, error) {
+func (db Database) InsertAction(req *pb.CreateActionRequest) (*pb.CreateActionResponse, error) {
 	var action pb.CreateActionResponse
 	const query = `INSERT actions SET action_name=?, user_id=?`
 
