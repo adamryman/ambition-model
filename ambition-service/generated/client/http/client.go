@@ -51,6 +51,25 @@ func New(instance string) (handler.Service, error) {
 
 	//limiter := ratelimit.NewTokenBucketLimiter(jujuratelimit.NewBucketWithRate(100, 100))
 
+	var ReadActionsZeroEndpoint endpoint.Endpoint
+	{
+		ReadActionsZeroEndpoint = httptransport.NewClient(
+			"get",
+			copyURL(u, "/action"),
+			svc.EncodeHTTPReadActionsZeroRequest,
+			svc.DecodeHTTPReadActionsResponse,
+			//httptransport.ClientBefore(opentracing.FromHTTPRequest(tracer, "Sum", logger)),
+		).Endpoint()
+		/*
+			sumEndpoint = opentracing.TraceClient(tracer, "Sum")(sumEndpoint)
+			sumEndpoint = limiter(sumEndpoint)
+			sumEndpoint = circuitbreaker.Gobreaker(gobreaker.NewCircuitBreaker(gobreaker.Settings{
+				Name:    "Sum",
+				Timeout: 30 * time.Second,
+			}))(sumEndpoint)
+		*/
+	}
+
 	var CreateActionZeroEndpoint endpoint.Endpoint
 	{
 		CreateActionZeroEndpoint = httptransport.NewClient(
@@ -58,6 +77,25 @@ func New(instance string) (handler.Service, error) {
 			copyURL(u, "/action"),
 			svc.EncodeHTTPCreateActionZeroRequest,
 			svc.DecodeHTTPCreateActionResponse,
+			//httptransport.ClientBefore(opentracing.FromHTTPRequest(tracer, "Sum", logger)),
+		).Endpoint()
+		/*
+			sumEndpoint = opentracing.TraceClient(tracer, "Sum")(sumEndpoint)
+			sumEndpoint = limiter(sumEndpoint)
+			sumEndpoint = circuitbreaker.Gobreaker(gobreaker.NewCircuitBreaker(gobreaker.Settings{
+				Name:    "Sum",
+				Timeout: 30 * time.Second,
+			}))(sumEndpoint)
+		*/
+	}
+
+	var ReadOccurrencesZeroEndpoint endpoint.Endpoint
+	{
+		ReadOccurrencesZeroEndpoint = httptransport.NewClient(
+			"get",
+			copyURL(u, "/action/"),
+			svc.EncodeHTTPReadOccurrencesZeroRequest,
+			svc.DecodeHTTPReadOccurrencesResponse,
 			//httptransport.ClientBefore(opentracing.FromHTTPRequest(tracer, "Sum", logger)),
 		).Endpoint()
 		/*
@@ -91,7 +129,9 @@ func New(instance string) (handler.Service, error) {
 
 	return svc.Endpoints{
 
+		ReadActionsEndpoint:      ReadActionsZeroEndpoint,
 		CreateActionEndpoint:     CreateActionZeroEndpoint,
+		ReadOccurrencesEndpoint:  ReadOccurrencesZeroEndpoint,
 		CreateOccurrenceEndpoint: CreateOccurrenceZeroEndpoint,
 	}, nil
 }

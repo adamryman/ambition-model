@@ -74,14 +74,13 @@ func (db Database) exec(query string, args ...interface{}) (int64, error) {
 	return id, nil
 }
 
-func (db Database) InsertAction(req *pb.CreateActionRequest) (*pb.CreateActionResponse, error) {
-	var action pb.CreateActionResponse
+func (db Database) InsertAction(req *pb.CreateActionRequest) (*pb.Action, error) {
+	var action pb.Action
 	const query = `INSERT actions SET action_name=?, user_id=?`
 
 	id, err := db.exec(query, req.ActionName, req.UserId)
 	if err != nil {
-		action.Error = err.Error()
-		return &action, err
+		return nil, err
 	}
 
 	action.ActionId = id
@@ -91,22 +90,22 @@ func (db Database) InsertAction(req *pb.CreateActionRequest) (*pb.CreateActionRe
 	return &action, nil
 }
 
-func (db *Database) InsertOccurrence(req *pb.CreateOccurrenceRequest) (*pb.CreateOccurrenceResponse, error) {
-	var occurrence pb.CreateOccurrenceResponse
-	const query = `INSERT occurrences SET action_id=?, time=?`
+//func (db *Database) InsertOccurrence(req *pb.CreateOccurrenceRequest) (*pb.OccurrenceResponse, error) {
+//var occurrence pb.OccurrenceResponse
+//const query = `INSERT occurrences SET action_id=?, time=?`
 
-	id, err := db.exec(query, req.ActionId, req.EpocTime)
-	if err != nil {
-		occurrence.Error = err.Error()
-		return &occurrence, err
-	}
+//id, err := db.exec(query, req.ActionId, req.EpocTime)
+//if err != nil {
+//occurrence.Error = err.Error()
+//return &occurrence, err
+//}
 
-	occurrence.OccurrenceId = id
-	occurrence.ActionId = req.ActionId
-	occurrence.EpocTime = req.EpocTime
+//occurrence.OccurrenceId = id
+//occurrence.ActionId = req.ActionId
+//occurrence.EpocTime = req.EpocTime
 
-	return &occurrence, nil
-}
+//return &occurrence, nil
+//}
 
 /*
 func (db DB) CreateUser(user) error {

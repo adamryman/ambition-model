@@ -6,8 +6,8 @@ package svc
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -18,6 +18,7 @@ import (
 	"golang.org/x/net/context"
 
 	"github.com/go-kit/kit/log"
+	"github.com/pkg/errors"
 	//"github.com/go-kit/kit/endpoint"
 	//"github.com/go-kit/kit/tracing/opentracing"
 	httptransport "github.com/go-kit/kit/transport/http"
@@ -32,6 +33,8 @@ var (
 	_ = strconv.Atoi
 	_ = httptransport.NewServer
 	_ = ioutil.NopCloser
+	_ = pb.RegisterAmbitionServiceServer
+	_ = io.Copy
 )
 
 // MakeHTTPHandler returns a handler that makes a set of endpoints available
@@ -46,8 +49,22 @@ func MakeHTTPHandler(ctx context.Context, endpoints Endpoints, logger log.Logger
 
 	m.Handle("/action", httptransport.NewServer(
 		ctx,
+		endpoints.ReadActionsEndpoint,
+		HttpDecodeLogger(DecodeHTTPReadActionsZeroRequest, logger),
+		EncodeHTTPGenericResponse,
+	))
+
+	m.Handle("/action", httptransport.NewServer(
+		ctx,
 		endpoints.CreateActionEndpoint,
 		HttpDecodeLogger(DecodeHTTPCreateActionZeroRequest, logger),
+		EncodeHTTPGenericResponse,
+	))
+
+	m.Handle("/action/", httptransport.NewServer(
+		ctx,
+		endpoints.ReadOccurrencesEndpoint,
+		HttpDecodeLogger(DecodeHTTPReadOccurrencesZeroRequest, logger),
 		EncodeHTTPGenericResponse,
 	))
 
@@ -63,7 +80,11 @@ func MakeHTTPHandler(ctx context.Context, endpoints Endpoints, logger log.Logger
 func HttpDecodeLogger(next httptransport.DecodeRequestFunc, logger log.Logger) httptransport.DecodeRequestFunc {
 	return func(ctx context.Context, r *http.Request) (interface{}, error) {
 		logger.Log("method", r.Method, "url", r.URL.String())
-		return next(ctx, r)
+		rv, err := next(ctx, r)
+		if err != nil {
+			logger.Log("method", r.Method, "url", r.URL.String(), "Error", err)
+		}
+		return rv, err
 	}
 }
 
@@ -103,27 +124,113 @@ type errorWrapper struct {
 
 // Server Decode
 
+// DecodeHTTPReadActionsZeroRequest is a transport/http.DecodeRequestFunc that
+// decodes a JSON-encoded readactions request from the HTTP request
+// body. Primarily useful in a server.
+func DecodeHTTPReadActionsZeroRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	var req pb.ActionsRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
+	// err = io.EOF if r.Body was empty
+	if err != nil && err != io.EOF {
+		return nil, errors.Wrap(err, "decoding body of http request")
+	}
+
+	pathParams, err := PathParams(r.URL.Path, "/action")
+	_ = pathParams
+	if err != nil {
+		fmt.Printf("Error while reading path params: %v\n", err)
+		return nil, errors.Wrap(err, "couldn't unmarshal path parameters")
+	}
+	queryParams, err := QueryParams(r.URL.Query())
+	_ = queryParams
+	if err != nil {
+		fmt.Printf("Error while reading query params: %v\n", err)
+		return nil, errors.Wrapf(err, "Error while reading query params: %v", r.URL.Query())
+	}
+
+	UserIdReadActionsStr := queryParams["UserId"]
+	UserIdReadActions, err := strconv.ParseInt(UserIdReadActionsStr, 10, 64)
+	// TODO: Better error handling
+	if err != nil {
+		fmt.Printf("Error while extracting UserIdReadActions from query: %v\n", err)
+		fmt.Printf("queryParams: %v\n", queryParams)
+		return nil, err
+	}
+	req.UserId = UserIdReadActions
+
+	return &req, err
+}
+
 // DecodeHTTPCreateActionZeroRequest is a transport/http.DecodeRequestFunc that
 // decodes a JSON-encoded createaction request from the HTTP request
 // body. Primarily useful in a server.
 func DecodeHTTPCreateActionZeroRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	var req pb.CreateActionRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
+	// err = io.EOF if r.Body was empty
+	if err != nil && err != io.EOF {
+		return nil, errors.Wrap(err, "decoding body of http request")
+	}
 
 	pathParams, err := PathParams(r.URL.Path, "/action")
 	_ = pathParams
-	// TODO: Better error handling
 	if err != nil {
 		fmt.Printf("Error while reading path params: %v\n", err)
-		return nil, err
+		return nil, errors.Wrap(err, "couldn't unmarshal path parameters")
 	}
 	queryParams, err := QueryParams(r.URL.Query())
 	_ = queryParams
-	// TODO: Better error handling
 	if err != nil {
 		fmt.Printf("Error while reading query params: %v\n", err)
+		return nil, errors.Wrapf(err, "Error while reading query params: %v", r.URL.Query())
+	}
+
+	return &req, err
+}
+
+// DecodeHTTPReadOccurrencesZeroRequest is a transport/http.DecodeRequestFunc that
+// decodes a JSON-encoded readoccurrences request from the HTTP request
+// body. Primarily useful in a server.
+func DecodeHTTPReadOccurrencesZeroRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	var req pb.OccurrencesRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
+	// err = io.EOF if r.Body was empty
+	if err != nil && err != io.EOF {
+		return nil, errors.Wrap(err, "decoding body of http request")
+	}
+
+	pathParams, err := PathParams(r.URL.Path, "/action/{ActionId}")
+	_ = pathParams
+	if err != nil {
+		fmt.Printf("Error while reading path params: %v\n", err)
+		return nil, errors.Wrap(err, "couldn't unmarshal path parameters")
+	}
+	queryParams, err := QueryParams(r.URL.Query())
+	_ = queryParams
+	if err != nil {
+		fmt.Printf("Error while reading query params: %v\n", err)
+		return nil, errors.Wrapf(err, "Error while reading query params: %v", r.URL.Query())
+	}
+
+	UserIdReadOccurrencesStr := queryParams["UserId"]
+	UserIdReadOccurrences, err := strconv.ParseInt(UserIdReadOccurrencesStr, 10, 64)
+	// TODO: Better error handling
+	if err != nil {
+		fmt.Printf("Error while extracting UserIdReadOccurrences from query: %v\n", err)
+		fmt.Printf("queryParams: %v\n", queryParams)
 		return nil, err
 	}
+	req.UserId = UserIdReadOccurrences
+
+	ActionIdReadOccurrencesStr := pathParams["ActionId"]
+	ActionIdReadOccurrences, err := strconv.ParseInt(ActionIdReadOccurrencesStr, 10, 64)
+	// TODO: Better error handling
+	if err != nil {
+		fmt.Printf("Error while extracting ActionIdReadOccurrences from path: %v\n", err)
+		fmt.Printf("pathParams: %v\n", pathParams)
+		return nil, err
+	}
+	req.ActionId = ActionIdReadOccurrences
 
 	return &req, err
 }
@@ -134,20 +241,22 @@ func DecodeHTTPCreateActionZeroRequest(_ context.Context, r *http.Request) (inte
 func DecodeHTTPCreateOccurrenceZeroRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	var req pb.CreateOccurrenceRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
+	// err = io.EOF if r.Body was empty
+	if err != nil && err != io.EOF {
+		return nil, errors.Wrap(err, "decoding body of http request")
+	}
 
 	pathParams, err := PathParams(r.URL.Path, "/action/{ActionId}")
 	_ = pathParams
-	// TODO: Better error handling
 	if err != nil {
 		fmt.Printf("Error while reading path params: %v\n", err)
-		return nil, err
+		return nil, errors.Wrap(err, "couldn't unmarshal path parameters")
 	}
 	queryParams, err := QueryParams(r.URL.Query())
 	_ = queryParams
-	// TODO: Better error handling
 	if err != nil {
 		fmt.Printf("Error while reading query params: %v\n", err)
-		return nil, err
+		return nil, errors.Wrapf(err, "Error while reading query params: %v", r.URL.Query())
 	}
 
 	ActionIdCreateOccurrenceStr := pathParams["ActionId"]
@@ -165,8 +274,22 @@ func DecodeHTTPCreateOccurrenceZeroRequest(_ context.Context, r *http.Request) (
 
 // Client Decode
 
+// DecodeHTTPReadActions is a transport/http.DecodeResponseFunc that decodes
+// a JSON-encoded ActionResponse response from the HTTP response body.
+// If the response has a non-200 status code, we will interpret that as an
+// error and attempt to decode the specific error message from the response
+// body. Primarily useful in a client.
+func DecodeHTTPReadActionsResponse(_ context.Context, r *http.Response) (interface{}, error) {
+	if r.StatusCode != http.StatusOK {
+		return nil, errorDecoder(r)
+	}
+	var resp pb.ActionResponse
+	err := json.NewDecoder(r.Body).Decode(&resp)
+	return &resp, err
+}
+
 // DecodeHTTPCreateAction is a transport/http.DecodeResponseFunc that decodes
-// a JSON-encoded CreateActionResponse response from the HTTP response body.
+// a JSON-encoded ActionResponse response from the HTTP response body.
 // If the response has a non-200 status code, we will interpret that as an
 // error and attempt to decode the specific error message from the response
 // body. Primarily useful in a client.
@@ -174,13 +297,27 @@ func DecodeHTTPCreateActionResponse(_ context.Context, r *http.Response) (interf
 	if r.StatusCode != http.StatusOK {
 		return nil, errorDecoder(r)
 	}
-	var resp pb.CreateActionResponse
+	var resp pb.ActionResponse
+	err := json.NewDecoder(r.Body).Decode(&resp)
+	return &resp, err
+}
+
+// DecodeHTTPReadOccurrences is a transport/http.DecodeResponseFunc that decodes
+// a JSON-encoded OccurrenceResponse response from the HTTP response body.
+// If the response has a non-200 status code, we will interpret that as an
+// error and attempt to decode the specific error message from the response
+// body. Primarily useful in a client.
+func DecodeHTTPReadOccurrencesResponse(_ context.Context, r *http.Response) (interface{}, error) {
+	if r.StatusCode != http.StatusOK {
+		return nil, errorDecoder(r)
+	}
+	var resp pb.OccurrenceResponse
 	err := json.NewDecoder(r.Body).Decode(&resp)
 	return &resp, err
 }
 
 // DecodeHTTPCreateOccurrence is a transport/http.DecodeResponseFunc that decodes
-// a JSON-encoded CreateOccurrenceResponse response from the HTTP response body.
+// a JSON-encoded OccurrenceResponse response from the HTTP response body.
 // If the response has a non-200 status code, we will interpret that as an
 // error and attempt to decode the specific error message from the response
 // body. Primarily useful in a client.
@@ -188,12 +325,52 @@ func DecodeHTTPCreateOccurrenceResponse(_ context.Context, r *http.Response) (in
 	if r.StatusCode != http.StatusOK {
 		return nil, errorDecoder(r)
 	}
-	var resp pb.CreateOccurrenceResponse
+	var resp pb.OccurrenceResponse
 	err := json.NewDecoder(r.Body).Decode(&resp)
 	return &resp, err
 }
 
 // Client Encode
+
+// EncodeHTTPReadActionsZeroRequest is a transport/http.EncodeRequestFunc
+// that encodes a readactions request into the various portions of
+// the http request (path, query, and body).
+func EncodeHTTPReadActionsZeroRequest(_ context.Context, r *http.Request, request interface{}) error {
+	fmt.Printf("Encoding request %v\n", request)
+	req := request.(*pb.ActionsRequest)
+	_ = req
+
+	// Set the path parameters
+	path := strings.Join([]string{
+		"",
+		"action",
+	}, "/")
+	u, err := url.Parse(path)
+	if err != nil {
+		return errors.Wrapf(err, "couldn't unmarshal path %q", path)
+	}
+	r.URL.RawPath = u.RawPath
+	r.URL.Path = u.Path
+
+	// Set the query parameters
+	values := r.URL.Query()
+	var tmp []byte
+	_ = tmp
+
+	values.Add("UserId", fmt.Sprint(req.UserId))
+
+	r.URL.RawQuery = values.Encode()
+
+	// Set the body parameters
+	var buf bytes.Buffer
+	toRet := map[string]interface{}{}
+	if err := json.NewEncoder(&buf).Encode(toRet); err != nil {
+		return errors.Wrapf(err, "couldn't encode body as json %v", toRet)
+	}
+	r.Body = ioutil.NopCloser(&buf)
+	fmt.Printf("URL: %v\n", r.URL)
+	return nil
+}
 
 // EncodeHTTPCreateActionZeroRequest is a transport/http.EncodeRequestFunc
 // that encodes a createaction request into the various portions of
@@ -208,17 +385,17 @@ func EncodeHTTPCreateActionZeroRequest(_ context.Context, r *http.Request, reque
 		"",
 		"action",
 	}, "/")
-	//r.URL.Scheme,
-	//r.URL.Host,
 	u, err := url.Parse(path)
 	if err != nil {
-		return err
+		return errors.Wrapf(err, "couldn't unmarshal path %q", path)
 	}
 	r.URL.RawPath = u.RawPath
 	r.URL.Path = u.Path
 
 	// Set the query parameters
 	values := r.URL.Query()
+	var tmp []byte
+	_ = tmp
 
 	r.URL.RawQuery = values.Encode()
 
@@ -230,7 +407,48 @@ func EncodeHTTPCreateActionZeroRequest(_ context.Context, r *http.Request, reque
 		"ActionName": req.ActionName,
 	}
 	if err := json.NewEncoder(&buf).Encode(toRet); err != nil {
-		return err
+		return errors.Wrapf(err, "couldn't encode body as json %v", toRet)
+	}
+	r.Body = ioutil.NopCloser(&buf)
+	fmt.Printf("URL: %v\n", r.URL)
+	return nil
+}
+
+// EncodeHTTPReadOccurrencesZeroRequest is a transport/http.EncodeRequestFunc
+// that encodes a readoccurrences request into the various portions of
+// the http request (path, query, and body).
+func EncodeHTTPReadOccurrencesZeroRequest(_ context.Context, r *http.Request, request interface{}) error {
+	fmt.Printf("Encoding request %v\n", request)
+	req := request.(*pb.OccurrencesRequest)
+	_ = req
+
+	// Set the path parameters
+	path := strings.Join([]string{
+		"",
+		"action",
+		fmt.Sprint(req.ActionId),
+	}, "/")
+	u, err := url.Parse(path)
+	if err != nil {
+		return errors.Wrapf(err, "couldn't unmarshal path %q", path)
+	}
+	r.URL.RawPath = u.RawPath
+	r.URL.Path = u.Path
+
+	// Set the query parameters
+	values := r.URL.Query()
+	var tmp []byte
+	_ = tmp
+
+	values.Add("UserId", fmt.Sprint(req.UserId))
+
+	r.URL.RawQuery = values.Encode()
+
+	// Set the body parameters
+	var buf bytes.Buffer
+	toRet := map[string]interface{}{}
+	if err := json.NewEncoder(&buf).Encode(toRet); err != nil {
+		return errors.Wrapf(err, "couldn't encode body as json %v", toRet)
 	}
 	r.Body = ioutil.NopCloser(&buf)
 	fmt.Printf("URL: %v\n", r.URL)
@@ -251,17 +469,17 @@ func EncodeHTTPCreateOccurrenceZeroRequest(_ context.Context, r *http.Request, r
 		"action",
 		fmt.Sprint(req.ActionId),
 	}, "/")
-	//r.URL.Scheme,
-	//r.URL.Host,
 	u, err := url.Parse(path)
 	if err != nil {
-		return err
+		return errors.Wrapf(err, "couldn't unmarshal path %q", path)
 	}
 	r.URL.RawPath = u.RawPath
 	r.URL.Path = u.Path
 
 	// Set the query parameters
 	values := r.URL.Query()
+	var tmp []byte
+	_ = tmp
 
 	r.URL.RawQuery = values.Encode()
 
@@ -271,7 +489,7 @@ func EncodeHTTPCreateOccurrenceZeroRequest(_ context.Context, r *http.Request, r
 		"EpocTime": req.EpocTime,
 	}
 	if err := json.NewEncoder(&buf).Encode(toRet); err != nil {
-		return err
+		return errors.Wrapf(err, "couldn't encode body as json %v", toRet)
 	}
 	r.Body = ioutil.NopCloser(&buf)
 	fmt.Printf("URL: %v\n", r.URL)

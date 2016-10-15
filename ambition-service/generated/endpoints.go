@@ -34,34 +34,74 @@ import (
 // construct individual endpoints using transport/http.NewClient, combine them
 // into an Endpoints, and return it to the caller as a Service.
 type Endpoints struct {
+	ReadActionsEndpoint      endpoint.Endpoint
 	CreateActionEndpoint     endpoint.Endpoint
+	ReadOccurrencesEndpoint  endpoint.Endpoint
 	CreateOccurrenceEndpoint endpoint.Endpoint
 }
 
 // Endpoints
 
-func (e Endpoints) CreateAction(ctx context.Context, in *pb.CreateActionRequest) (*pb.CreateActionResponse, error) {
+func (e Endpoints) ReadActions(ctx context.Context, in *pb.ActionsRequest) (*pb.ActionResponse, error) {
+	response, err := e.ReadActionsEndpoint(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+	return response.(*pb.ActionResponse), nil
+}
+
+func (e Endpoints) CreateAction(ctx context.Context, in *pb.CreateActionRequest) (*pb.ActionResponse, error) {
 	response, err := e.CreateActionEndpoint(ctx, in)
 	if err != nil {
 		return nil, err
 	}
-	return response.(*pb.CreateActionResponse), nil
+	return response.(*pb.ActionResponse), nil
 }
 
-func (e Endpoints) CreateOccurrence(ctx context.Context, in *pb.CreateOccurrenceRequest) (*pb.CreateOccurrenceResponse, error) {
+func (e Endpoints) ReadOccurrences(ctx context.Context, in *pb.OccurrencesRequest) (*pb.OccurrenceResponse, error) {
+	response, err := e.ReadOccurrencesEndpoint(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+	return response.(*pb.OccurrenceResponse), nil
+}
+
+func (e Endpoints) CreateOccurrence(ctx context.Context, in *pb.CreateOccurrenceRequest) (*pb.OccurrenceResponse, error) {
 	response, err := e.CreateOccurrenceEndpoint(ctx, in)
 	if err != nil {
 		return nil, err
 	}
-	return response.(*pb.CreateOccurrenceResponse), nil
+	return response.(*pb.OccurrenceResponse), nil
 }
 
 // Make Endpoints
+
+func MakeReadActionsEndpoint(s handler.Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(*pb.ActionsRequest)
+		v, err := s.ReadActions(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return v, nil
+	}
+}
 
 func MakeCreateActionEndpoint(s handler.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(*pb.CreateActionRequest)
 		v, err := s.CreateAction(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return v, nil
+	}
+}
+
+func MakeReadOccurrencesEndpoint(s handler.Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(*pb.OccurrencesRequest)
+		v, err := s.ReadOccurrences(ctx, req)
 		if err != nil {
 			return nil, err
 		}

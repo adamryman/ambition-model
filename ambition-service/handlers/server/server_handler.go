@@ -29,7 +29,7 @@ func NewService() Service {
 var db *database.Database
 
 // CreateAction implements Service.
-func (s ambitionService) CreateAction(ctx context.Context, in *pb.CreateActionRequest) (*pb.CreateActionResponse, error) {
+func (s ambitionService) CreateAction(ctx context.Context, in *pb.CreateActionRequest) (*pb.ActionResponse, error) {
 	_ = ctx
 	_ = in
 
@@ -51,28 +51,57 @@ func (s ambitionService) CreateAction(ctx context.Context, in *pb.CreateActionRe
 }
 
 // CreateOccurrence implements Service.
-func (s ambitionService) CreateOccurrence(ctx context.Context, in *pb.CreateOccurrenceRequest) (*pb.CreateOccurrenceResponse, error) {
+func (s ambitionService) CreateOccurrence(ctx context.Context, in *pb.CreateOccurrenceRequest) (*pb.OccurrenceResponse, error) {
 	_ = ctx
 	_ = in
 
-	var err error
-	if db == nil {
-		db, err = database.New()
-		if err != nil {
-			return nil, err
-		}
+	//var err error
+	//if db == nil {
+	//db, err = database.New()
+	//if err != nil {
+	//return nil, err
+	//}
+	//}
+
+	//occurrence, err := db.InsertOccurrence(in)
+
+	//if err != nil {
+	//return occurrence, err
+	//}
+
+	return nil, nil
+}
+
+// CreateOccurrenceForReal implements Service.
+
+// Items:
+// Error:
+
+// ReadActions implements Service.
+func (s ambitionService) ReadActions(ctx context.Context, in *pb.ActionsRequest) (*pb.ActionResponse, error) {
+	_ = ctx
+	_ = in
+	response := pb.ActionResponse{
+	// Result:
+	// Error:
 	}
+	return &response, nil
+}
 
-	occurrence, err := db.InsertOccurrence(in)
-
-	if err != nil {
-		return occurrence, err
+// ReadOccurrences implements Service.
+func (s ambitionService) ReadOccurrences(ctx context.Context, in *pb.OccurrencesRequest) (*pb.OccurrenceResponse, error) {
+	_ = ctx
+	_ = in
+	response := pb.OccurrenceResponse{
+	// Result:
+	// Error:
 	}
-
-	return occurrence, nil
+	return &response, nil
 }
 
 type Service interface {
-	CreateAction(ctx context.Context, in *pb.CreateActionRequest) (*pb.CreateActionResponse, error)
-	CreateOccurrence(ctx context.Context, in *pb.CreateOccurrenceRequest) (*pb.CreateOccurrenceResponse, error)
+	ReadActions(ctx context.Context, in *pb.ActionsRequest) (*pb.ActionResponse, error)
+	CreateAction(ctx context.Context, in *pb.CreateActionRequest) (*pb.ActionResponse, error)
+	ReadOccurrences(ctx context.Context, in *pb.OccurrencesRequest) (*pb.OccurrenceResponse, error)
+	CreateOccurrence(ctx context.Context, in *pb.CreateOccurrenceRequest) (*pb.OccurrenceResponse, error)
 }

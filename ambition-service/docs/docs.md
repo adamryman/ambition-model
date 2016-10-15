@@ -96,16 +96,32 @@ th:nth-child(4) {
 | UserId | TYPE_INT64 | 1 |  |
 | ActionName | TYPE_STRING | 2 |  |
 
-<a name="CreateActionResponse"></a>
+<a name="ActionsRequest"></a>
 
-#### CreateActionResponse
+#### ActionsRequest
+
+| Name | Type | Field Number | Description|
+| ---- | ---- | ------------ | -----------|
+| UserId | TYPE_INT64 | 1 |  |
+
+<a name="ActionResponse"></a>
+
+#### ActionResponse
+
+| Name | Type | Field Number | Description|
+| ---- | ---- | ------------ | -----------|
+| Result | [Action](#Action) | 1 |  |
+| Error | TYPE_STRING | 4 |  |
+
+<a name="Action"></a>
+
+#### Action
 
 | Name | Type | Field Number | Description|
 | ---- | ---- | ------------ | -----------|
 | ActionId | TYPE_INT64 | 1 |  |
 | UserId | TYPE_INT64 | 2 |  |
 | ActionName | TYPE_STRING | 3 |  |
-| Error | TYPE_STRING | 4 |  |
 
 <a name="CreateOccurrenceRequest"></a>
 
@@ -116,16 +132,33 @@ th:nth-child(4) {
 | ActionId | TYPE_INT64 | 1 |  |
 | EpocTime | TYPE_INT64 | 2 |  |
 
-<a name="CreateOccurrenceResponse"></a>
+<a name="OccurrencesRequest"></a>
 
-#### CreateOccurrenceResponse
+#### OccurrencesRequest
+
+| Name | Type | Field Number | Description|
+| ---- | ---- | ------------ | -----------|
+| UserId | TYPE_INT64 | 1 |  |
+| ActionId | TYPE_INT64 | 2 |  |
+
+<a name="OccurrenceResponse"></a>
+
+#### OccurrenceResponse
+
+| Name | Type | Field Number | Description|
+| ---- | ---- | ------------ | -----------|
+| Result | [Occurrence](#Occurrence) | 1 |  |
+| Error | TYPE_STRING | 2 |  |
+
+<a name="Occurrence"></a>
+
+#### Occurrence
 
 | Name | Type | Field Number | Description|
 | ---- | ---- | ------------ | -----------|
 | OccurrenceId | TYPE_INT64 | 1 |  |
 | ActionId | TYPE_INT64 | 2 |  |
 | EpocTime | TYPE_INT64 | 3 |  |
-| Error | TYPE_STRING | 4 |  |
 
 ### Services
 
@@ -133,10 +166,28 @@ th:nth-child(4) {
 
 | Method Name | Request Type | Response Type | Description|
 | ---- | ---- | ------------ | -----------|
-| CreateAction | CreateActionRequest | CreateActionResponse |  |
-| CreateOccurrence | CreateOccurrenceRequest | CreateOccurrenceResponse |  |
+| ReadActions | ActionsRequest | ActionResponse | rpc ReadAction() returns (ActionResponse) {
+option (google.api.http) = {
+get: "/action/{ActionId}"
+};
+} |
+| CreateAction | CreateActionRequest | ActionResponse |  |
+| ReadOccurrences | OccurrencesRequest | OccurrenceResponse | rpc ReadOccurrence() returns (OccurrenceResponse) {
+option (google.api.http) = {
+get: "/occurrence/{OccurrenceId}"
+};
+} |
+| CreateOccurrence | CreateOccurrenceRequest | OccurrenceResponse |  |
 
 #### AmbitionService - Http Methods
+
+##### GET `/action`
+
+
+
+| Parameter Name | Location | Type |
+| ---- | ---- | ------------ |
+| UserId | query | TYPE_INT64 |
 
 ##### POST `/action`
 
@@ -146,6 +197,15 @@ th:nth-child(4) {
 | ---- | ---- | ------------ |
 | UserId | body | TYPE_INT64 |
 | ActionName | body | TYPE_STRING |
+
+##### GET `/action/{ActionId}`
+
+
+
+| Parameter Name | Location | Type |
+| ---- | ---- | ------------ |
+| UserId | query | TYPE_INT64 |
+| ActionId | path | TYPE_INT64 |
 
 ##### POST `/action/{ActionId}`
 

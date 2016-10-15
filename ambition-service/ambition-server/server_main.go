@@ -133,6 +133,17 @@ func main() {
 
 	// Endpoint domain.
 
+	var readactionsEndpoint endpoint.Endpoint
+	{
+		//readactionsDuration := duration.With(metrics.Field{Key: "method", Value: "ReadActions})"
+		//readactionsLogger := log.NewContext(logger).With("method", "ReadActions)")
+
+		readactionsEndpoint = svc.MakeReadActionsEndpoint(service)
+		//readactionsEndpoint = opentracing.TraceServer(tracer, "ReadActions)")(readactionsEndpoint)
+		//readactionsEndpoint = svc.EndpointInstrumentingMiddleware(readactionsDuration)(readactionsEndpoint)
+		//readactionsEndpoint = svc.EndpointLoggingMiddleware(readactionsLogger)(readactionsEndpoint)
+	}
+
 	var createactionEndpoint endpoint.Endpoint
 	{
 		//createactionDuration := duration.With(metrics.Field{Key: "method", Value: "CreateAction})"
@@ -142,6 +153,17 @@ func main() {
 		//createactionEndpoint = opentracing.TraceServer(tracer, "CreateAction)")(createactionEndpoint)
 		//createactionEndpoint = svc.EndpointInstrumentingMiddleware(createactionDuration)(createactionEndpoint)
 		//createactionEndpoint = svc.EndpointLoggingMiddleware(createactionLogger)(createactionEndpoint)
+	}
+
+	var readoccurrencesEndpoint endpoint.Endpoint
+	{
+		//readoccurrencesDuration := duration.With(metrics.Field{Key: "method", Value: "ReadOccurrences})"
+		//readoccurrencesLogger := log.NewContext(logger).With("method", "ReadOccurrences)")
+
+		readoccurrencesEndpoint = svc.MakeReadOccurrencesEndpoint(service)
+		//readoccurrencesEndpoint = opentracing.TraceServer(tracer, "ReadOccurrences)")(readoccurrencesEndpoint)
+		//readoccurrencesEndpoint = svc.EndpointInstrumentingMiddleware(readoccurrencesDuration)(readoccurrencesEndpoint)
+		//readoccurrencesEndpoint = svc.EndpointLoggingMiddleware(readoccurrencesLogger)(readoccurrencesEndpoint)
 	}
 
 	var createoccurrenceEndpoint endpoint.Endpoint
@@ -157,7 +179,9 @@ func main() {
 
 	endpoints := svc.Endpoints{
 
+		ReadActionsEndpoint:      readactionsEndpoint,
 		CreateActionEndpoint:     createactionEndpoint,
+		ReadOccurrencesEndpoint:  readoccurrencesEndpoint,
 		CreateOccurrenceEndpoint: createoccurrenceEndpoint,
 	}
 

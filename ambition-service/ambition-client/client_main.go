@@ -1,10 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
-	//"strings"
+	"strconv"
+	"strings"
 	"time"
 
 	//"github.com/lightstep/lightstep-tracer-go"
@@ -15,13 +17,24 @@ import (
 	"google.golang.org/grpc"
 	//"sourcegraph.com/sourcegraph/appdash"
 
+	"github.com/pkg/errors"
+
 	//"github.com/go-kit/kit/log"
 
 	// This Service
+	pb "github.com/adamryman/ambition-truss/ambition-service"
 	grpcclient "github.com/adamryman/ambition-truss/ambition-service/generated/client/grpc"
 	httpclient "github.com/adamryman/ambition-truss/ambition-service/generated/client/http"
 	clientHandler "github.com/adamryman/ambition-truss/ambition-service/handlers/client"
 	handler "github.com/adamryman/ambition-truss/ambition-service/handlers/server"
+)
+
+var (
+	_ = strconv.ParseInt
+	_ = strings.Split
+	_ = json.Compact
+	_ = errors.Wrapf
+	_ = pb.RegisterAmbitionServiceServer
 )
 
 func main() {
@@ -38,14 +51,17 @@ func main() {
 		//zipkinAddr     = flag.String("zipkin.addr", "", "Enable Zipkin tracing via a Kafka Collector host:port")
 		//appdashAddr    = flag.String("appdash.addr", "", "Enable Appdash tracing via an Appdash server host:port")
 		//lightstepToken = flag.String("lightstep.token", "", "Enable LightStep tracing via a LightStep access token")
-		method = flag.String("method", "createaction", "createaction,createoccurrence")
+		method = flag.String("method", "readactions", "readactions,createaction,readoccurrences,createoccurrence")
 	)
 
 	var (
-		UserIdCreateAction       = flag.Int64("createaction.userid", 0, "")
-		ActionNameCreateAction   = flag.String("createaction.actionname", "", "")
-		ActionIdCreateOccurrence = flag.Int64("createoccurrence.actionid", 0, "")
-		EpocTimeCreateOccurrence = flag.Int64("createoccurrence.epoctime", 0, "")
+		flagUserIdReadActions        = flag.Int64("readactions.userid", 0, "")
+		flagUserIdCreateAction       = flag.Int64("createaction.userid", 0, "")
+		flagActionNameCreateAction   = flag.String("createaction.actionname", "", "")
+		flagUserIdReadOccurrences    = flag.Int64("readoccurrences.userid", 0, "")
+		flagActionIdReadOccurrences  = flag.Int64("readoccurrences.actionid", 0, "")
+		flagActionIdCreateOccurrence = flag.Int64("createoccurrence.actionid", 0, "")
+		flagEpocTimeCreateOccurrence = flag.Int64("createoccurrence.epoctime", 0, "")
 	)
 	flag.Parse()
 
@@ -94,7 +110,7 @@ func main() {
 	} else if *grpcAddr != "" {
 		conn, err := grpc.Dial(*grpcAddr, grpc.WithInsecure(), grpc.WithTimeout(time.Second))
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "error: %v", err)
+			fmt.Fprintf(os.Stderr, "Error while dialing grpc connection: %v", err)
 			os.Exit(1)
 		}
 		defer conn.Close()
@@ -110,27 +126,86 @@ func main() {
 
 	switch *method {
 
-	case "createaction":
-		request, _ := clientHandler.CreateAction(*UserIdCreateAction, *ActionNameCreateAction)
-		v, err := service.CreateAction(context.Background(), request)
+	case "readactions":
+
+		var err error
+		UserIdReadActions := *flagUserIdReadActions
+		request, err := clientHandler.ReadActions(UserIdReadActions)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "error: %v\n", err)
+			fmt.Fprintf(os.Stderr, "Error calling clientHandler.ReadActions: %v\n", err)
+			os.Exit(1)
+		}
+
+		v, err := service.ReadActions(context.Background(), request)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error calling service.ReadActions: %v\n", err)
 			os.Exit(1)
 		}
 		fmt.Println("Client Requested with:")
-		fmt.Println(*UserIdCreateAction, *ActionNameCreateAction)
+		fmt.Println(UserIdReadActions)
+		fmt.Println("Server Responded with:")
+		fmt.Println(v)
+
+	case "createaction":
+
+		var err error
+		UserIdCreateAction := *flagUserIdCreateAction
+		ActionNameCreateAction := *flagActionNameCreateAction
+		request, err := clientHandler.CreateAction(UserIdCreateAction, ActionNameCreateAction)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error calling clientHandler.CreateAction: %v\n", err)
+			os.Exit(1)
+		}
+
+		v, err := service.CreateAction(context.Background(), request)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error calling service.CreateAction: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Println("Client Requested with:")
+		fmt.Println(UserIdCreateAction, ActionNameCreateAction)
+		fmt.Println("Server Responded with:")
+		fmt.Println(v)
+
+	case "readoccurrences":
+
+		var err error
+		UserIdReadOccurrences := *flagUserIdReadOccurrences
+		ActionIdReadOccurrences := *flagActionIdReadOccurrences
+		request, err := clientHandler.ReadOccurrences(UserIdReadOccurrences, ActionIdReadOccurrences)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error calling clientHandler.ReadOccurrences: %v\n", err)
+			os.Exit(1)
+		}
+
+		v, err := service.ReadOccurrences(context.Background(), request)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error calling service.ReadOccurrences: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Println("Client Requested with:")
+		fmt.Println(UserIdReadOccurrences, ActionIdReadOccurrences)
 		fmt.Println("Server Responded with:")
 		fmt.Println(v)
 
 	case "createoccurrence":
-		request, _ := clientHandler.CreateOccurrence(*ActionIdCreateOccurrence, *EpocTimeCreateOccurrence)
+
+		var err error
+		ActionIdCreateOccurrence := *flagActionIdCreateOccurrence
+		EpocTimeCreateOccurrence := *flagEpocTimeCreateOccurrence
+		request, err := clientHandler.CreateOccurrence(ActionIdCreateOccurrence, EpocTimeCreateOccurrence)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error calling clientHandler.CreateOccurrence: %v\n", err)
+			os.Exit(1)
+		}
+
 		v, err := service.CreateOccurrence(context.Background(), request)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "error: %v\n", err)
+			fmt.Fprintf(os.Stderr, "Error calling service.CreateOccurrence: %v\n", err)
 			os.Exit(1)
 		}
 		fmt.Println("Client Requested with:")
-		fmt.Println(*ActionIdCreateOccurrence, *EpocTimeCreateOccurrence)
+		fmt.Println(ActionIdCreateOccurrence, EpocTimeCreateOccurrence)
 		fmt.Println("Server Responded with:")
 		fmt.Println(v)
 

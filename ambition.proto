@@ -5,14 +5,39 @@ package ambition;
 import "google/api/annotations.proto";
 
 service AmbitionService {
-  rpc CreateAction(CreateActionRequest) returns (CreateActionResponse) {
+/*
+  rpc ReadAction() returns (ActionResponse) {
+    option (google.api.http) = {
+      get: "/action/{ActionId}"
+    };
+  }
+*/
+  rpc ReadActions(ActionsRequest) returns (ActionResponse) {
+    option (google.api.http) = {
+      get: "/action"
+    };
+  }
+
+  rpc CreateAction(CreateActionRequest) returns (ActionResponse) {
     option (google.api.http) = {
       post: "/action"
       body: "*"
     };
   }
+/*
+  rpc ReadOccurrence() returns (OccurrenceResponse) {
+    option (google.api.http) = {
+      get: "/occurrence/{OccurrenceId}"
+    };
+  }
+*/
+  rpc ReadOccurrences(OccurrencesRequest) returns (OccurrenceResponse) {
+    option (google.api.http) = {
+      get: "/action/{ActionId}"
+    };
+  }
 
-  rpc CreateOccurrence(CreateOccurrenceRequest) returns (CreateOccurrenceResponse) {
+  rpc CreateOccurrence(CreateOccurrenceRequest) returns (OccurrenceResponse) {
     option (google.api.http) = {
       post: "/action/{ActionId}"
       body: "*"
@@ -26,11 +51,19 @@ message CreateActionRequest {
   string ActionName = 2;
 }
 
-message CreateActionResponse {
+message ActionsRequest {
+  int64 UserId = 1;
+}
+
+message ActionResponse {
+  repeated Action Result = 1;
+  string Error = 4;
+}
+
+message Action {
   int64 ActionId = 1;
   int64 UserId = 2;
   string ActionName = 3;
-  string Error = 4;
 }
 
 message CreateOccurrenceRequest {
@@ -38,10 +71,19 @@ message CreateOccurrenceRequest {
   int64 EpocTime = 2;
 }
 
-message CreateOccurrenceResponse {
+message OccurrencesRequest {
+  int64 UserId = 1;
+  int64 ActionId = 2;
+}
+
+message OccurrenceResponse {
+  repeated Occurrence Result = 1;
+  string Error = 2;
+}
+
+message Occurrence {
   int64 OccurrenceId = 1;
   int64 ActionId = 2;
   int64 EpocTime = 3;
-  string Error = 4;
 }
 
