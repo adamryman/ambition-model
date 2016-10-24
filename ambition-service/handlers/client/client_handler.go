@@ -1,7 +1,7 @@
 package clienthandler
 
 import (
-	pb "github.com/adamryman/ambition-truss/ambition-service"
+	pb "github.com/adamryman/ambition-model/ambition-service"
 )
 
 // ReadActions implements Service.

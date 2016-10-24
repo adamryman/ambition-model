@@ -4,21 +4,18 @@ package svc
 // It utilizes the transport/grpc.Server.
 
 import (
-	//stdopentracing "github.com/opentracing/opentracing-go"
 	"golang.org/x/net/context"
 
-	//"github.com/go-kit/kit/log"
-	//"github.com/go-kit/kit/tracing/opentracing"
 	grpctransport "github.com/go-kit/kit/transport/grpc"
 
 	// This Service
-	pb "github.com/adamryman/ambition-truss/ambition-service"
+	pb "github.com/adamryman/ambition-model/ambition-service"
 )
 
-// MakeGRPCServer makes a set of endpoints available as a gRPC AddServer.
-func MakeGRPCServer(ctx context.Context, endpoints Endpoints /*, tracer stdopentracing.Tracer, logger log.Logger*/) pb.AmbitionServiceServer {
+// MakeGRPCServer makes a set of endpoints available as a gRPC AmbitionServiceServer.
+func MakeGRPCServer(ctx context.Context, endpoints Endpoints) pb.AmbitionServiceServer {
 	//options := []grpctransport.ServerOption{
-	//grpctransport.ServerErrorLogger(logger),
+	// grpctransport.ServiceBefore()
 	//}
 	return &grpcServer{
 		// ambitionservice
@@ -28,39 +25,40 @@ func MakeGRPCServer(ctx context.Context, endpoints Endpoints /*, tracer stdopent
 			endpoints.ReadActionsEndpoint,
 			DecodeGRPCReadActionsRequest,
 			EncodeGRPCReadActionsResponse,
-			//append(options,grpctransport.ServerBefore(opentracing.FromGRPCRequest(tracer, "ReadActions", logger)))...,
+			//options...,
 		),
 		readaction: grpctransport.NewServer(
 			ctx,
 			endpoints.ReadActionEndpoint,
 			DecodeGRPCReadActionRequest,
 			EncodeGRPCReadActionResponse,
-			//append(options,grpctransport.ServerBefore(opentracing.FromGRPCRequest(tracer, "ReadAction", logger)))...,
+			//options...,
 		),
 		createaction: grpctransport.NewServer(
 			ctx,
 			endpoints.CreateActionEndpoint,
 			DecodeGRPCCreateActionRequest,
 			EncodeGRPCCreateActionResponse,
-			//append(options,grpctransport.ServerBefore(opentracing.FromGRPCRequest(tracer, "CreateAction", logger)))...,
+			//options...,
 		),
 		readoccurrences: grpctransport.NewServer(
 			ctx,
 			endpoints.ReadOccurrencesEndpoint,
 			DecodeGRPCReadOccurrencesRequest,
 			EncodeGRPCReadOccurrencesResponse,
-			//append(options,grpctransport.ServerBefore(opentracing.FromGRPCRequest(tracer, "ReadOccurrences", logger)))...,
+			//options...,
 		),
 		createoccurrence: grpctransport.NewServer(
 			ctx,
 			endpoints.CreateOccurrenceEndpoint,
 			DecodeGRPCCreateOccurrenceRequest,
 			EncodeGRPCCreateOccurrenceResponse,
-			//append(options,grpctransport.ServerBefore(opentracing.FromGRPCRequest(tracer, "CreateOccurrence", logger)))...,
+			//options...,
 		),
 	}
 }
 
+// grpcServer implements the AmbitionServiceServer interface
 type grpcServer struct {
 	readactions      grpctransport.Handler
 	readaction       grpctransport.Handler
@@ -69,7 +67,7 @@ type grpcServer struct {
 	createoccurrence grpctransport.Handler
 }
 
-// Methods
+// Methods for grpcServer to implement AmbitionServiceServer interface
 
 func (s *grpcServer) ReadActions(ctx context.Context, req *pb.ReadActionsRequest) (*pb.ActionsResponse, error) {
 	_, rep, err := s.readactions.ServeGRPC(ctx, req)

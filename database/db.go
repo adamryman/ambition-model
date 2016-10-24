@@ -8,7 +8,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/pkg/errors"
 
-	pb "github.com/adamryman/ambition-truss/ambition-service"
+	pb "github.com/adamryman/ambition-model/ambition-service"
 )
 
 type Configuration struct {

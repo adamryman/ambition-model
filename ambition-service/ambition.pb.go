@@ -27,7 +27,7 @@ package ambition
 import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"
 import math "math"
-import _ "github.com/adamryman/ambition-truss/ambition-service/third_party/googleapis/google/api"
+import _ "github.com/adamryman/ambition-model/ambition-service/third_party/googleapis/google/api"
 
 import (
 	context "golang.org/x/net/context"

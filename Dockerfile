@@ -1,12 +1,10 @@
 FROM golang:1.7.1
 
-RUN mkdir -p /go/src/github.com/adamryman/ambition-truss
+RUN mkdir -p /go/src/github.com/adamryman/ambition-model
 
-COPY . /go/src/github.com/adamryman/ambition-truss
+COPY . /go/src/github.com/adamryman/ambition-model
 
-WORKDIR /go/src/github.com/adamryman/ambition-truss
-RUN git remote set-url origin https://github.com/adamryman/ambition-truss && \
-	go get -v ./...
+WORKDIR /go/src/github.com/adamryman/ambition-model
 	
 RUN go install ./...
 

@@ -8,41 +8,27 @@ import (
 	"net/http/pprof"
 	"os"
 	"os/signal"
-	//"strings"
 	"syscall"
-	//"time"
 
 	// 3d Party
-	//lightstep "github.com/lightstep/lightstep-tracer-go"
-	//stdopentracing "github.com/opentracing/opentracing-go"
-	//zipkin "github.com/openzipkin/zipkin-go-opentracing"
-	//stdprometheus "github.com/prometheus/client_golang/prometheus"
-	//appdashot "github.com/sourcegraph/appdash/opentracing"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-	//"sourcegraph.com/sourcegraph/appdash"
 
 	// Go Kit
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
-	//"github.com/go-kit/kit/metrics"
-	//"github.com/go-kit/kit/metrics/prometheus"
-	//"github.com/go-kit/kit/tracing/opentracing"
 
 	// This Service
-	pb "github.com/adamryman/ambition-truss/ambition-service"
-	svc "github.com/adamryman/ambition-truss/ambition-service/generated"
-	handler "github.com/adamryman/ambition-truss/ambition-service/handlers/server"
+	pb "github.com/adamryman/ambition-model/ambition-service"
+	svc "github.com/adamryman/ambition-model/ambition-service/generated"
+	handler "github.com/adamryman/ambition-model/ambition-service/handlers/server"
 )
 
 func main() {
 	var (
-		debugAddr = flag.String("debug.addr", ":8080", "Debug and metrics listen address")
-		httpAddr  = flag.String("http.addr", ":8081", "HTTP listen address")
-		grpcAddr  = flag.String("grpc.addr", ":8082", "gRPC (HTTP) listen address")
-		//zipkinAddr     = flag.String("zipkin.addr", "", "Enable Zipkin tracing via a Kafka server host:port")
-		//appdashAddr    = flag.String("appdash.addr", "", "Enable Appdash tracing via an Appdash server host:port")
-		//lightstepToken = flag.String("lightstep.token", "", "Enable LightStep tracing via a LightStep access token")
+		debugAddr = flag.String("debug.addr", ":5060", "Debug and metrics listen address")
+		httpAddr  = flag.String("http.addr", ":5050", "HTTP listen address")
+		grpcAddr  = flag.String("grpc.addr", ":5040", "gRPC (HTTP) listen address")
 	)
 	flag.Parse()
 
@@ -56,140 +42,46 @@ func main() {
 	logger.Log("msg", "hello")
 	defer logger.Log("msg", "goodbye")
 
-	/*
-		// Metrics domain.
-		var ints, chars metrics.Counter
-		{
-			// Business level metrics.
-			ints = prometheus.NewCounter(stdprometheus.CounterOpts{
-				Namespace: "svc",
-				Name:      "integers_summed",
-				Help:      "Total count of integers summed via the Sum method.",
-			}, []string{})
-			chars = prometheus.NewCounter(stdprometheus.CounterOpts{
-				Namespace: "svc",
-				Name:      "characters_concatenated",
-				Help:      "Total count of characters concatenated via the Concat method.",
-			}, []string{})
-		}
-		var duration metrics.TimeHistogram
-		{
-			// Transport level metrics.
-			duration = metrics.NewTimeHistogram(time.Nanosecond, prometheus.NewSummary(stdprometheus.SummaryOpts{
-				Namespace: "svc",
-				Name:      "request_duration_ns",
-				Help:      "Request duration in nanoseconds.",
-			}, []string{"method", "success"}))
-		}
-	*/
-	// Tracing domain.
-	/*
-		var tracer stdopentracing.Tracer
-		{
-			if *zipkinAddr != "" {
-				logger := log.NewContext(logger).With("tracer", "Zipkin")
-				logger.Log("addr", *zipkinAddr)
-				collector, err := zipkin.NewKafkaCollector(
-					strings.Split(*zipkinAddr, ","),
-					zipkin.KafkaLogger(logger),
-				)
-				if err != nil {
-					logger.Log("err", err)
-					os.Exit(1)
-				}
-				tracer, err = zipkin.NewTracer(
-					zipkin.NewRecorder(collector, false, "localhost:80", "svc"),
-				)
-				if err != nil {
-					logger.Log("err", err)
-					os.Exit(1)
-				}
-			} else if *appdashAddr != "" {
-				logger := log.NewContext(logger).With("tracer", "Appdash")
-				logger.Log("addr", *appdashAddr)
-				tracer = appdashot.NewTracer(appdash.NewRemoteCollector(*appdashAddr))
-			} else if *lightstepToken != "" {
-				logger := log.NewContext(logger).With("tracer", "LightStep")
-				logger.Log() // probably don't want to print out the token :)
-				tracer = lightstep.NewTracer(lightstep.Options{
-					AccessToken: *lightstepToken,
-				})
-				defer lightstep.FlushLightStepTracer(tracer)
-			} else {
-				logger := log.NewContext(logger).With("tracer", "none")
-				logger.Log()
-				tracer = stdopentracing.GlobalTracer() // no-op
-			}
-		}
-	*/
-
 	// Business domain.
 	var service handler.Service
 	{
 		service = handler.NewService()
-		//service = handler.ServiceLoggingMiddleware(logger)(service)
-		//service = handler.ServiceInstrumentingMiddleware(ints, chars)(service)
+		// add service logging and metrics here
 	}
 
 	// Endpoint domain.
 
 	var readactionsEndpoint endpoint.Endpoint
 	{
-		//readactionsDuration := duration.With(metrics.Field{Key: "method", Value: "ReadActions})"
-		//readactionsLogger := log.NewContext(logger).With("method", "ReadActions)")
-
 		readactionsEndpoint = svc.MakeReadActionsEndpoint(service)
-		//readactionsEndpoint = opentracing.TraceServer(tracer, "ReadActions)")(readactionsEndpoint)
-		//readactionsEndpoint = svc.EndpointInstrumentingMiddleware(readactionsDuration)(readactionsEndpoint)
-		//readactionsEndpoint = svc.EndpointLoggingMiddleware(readactionsLogger)(readactionsEndpoint)
+		// Add endpoint tracing, instrumentation and logging here
 	}
 
 	var readactionEndpoint endpoint.Endpoint
 	{
-		//readactionDuration := duration.With(metrics.Field{Key: "method", Value: "ReadAction})"
-		//readactionLogger := log.NewContext(logger).With("method", "ReadAction)")
-
 		readactionEndpoint = svc.MakeReadActionEndpoint(service)
-		//readactionEndpoint = opentracing.TraceServer(tracer, "ReadAction)")(readactionEndpoint)
-		//readactionEndpoint = svc.EndpointInstrumentingMiddleware(readactionDuration)(readactionEndpoint)
-		//readactionEndpoint = svc.EndpointLoggingMiddleware(readactionLogger)(readactionEndpoint)
+		// Add endpoint tracing, instrumentation and logging here
 	}
 
 	var createactionEndpoint endpoint.Endpoint
 	{
-		//createactionDuration := duration.With(metrics.Field{Key: "method", Value: "CreateAction})"
-		//createactionLogger := log.NewContext(logger).With("method", "CreateAction)")
-
 		createactionEndpoint = svc.MakeCreateActionEndpoint(service)
-		//createactionEndpoint = opentracing.TraceServer(tracer, "CreateAction)")(createactionEndpoint)
-		//createactionEndpoint = svc.EndpointInstrumentingMiddleware(createactionDuration)(createactionEndpoint)
-		//createactionEndpoint = svc.EndpointLoggingMiddleware(createactionLogger)(createactionEndpoint)
+		// Add endpoint tracing, instrumentation and logging here
 	}
 
 	var readoccurrencesEndpoint endpoint.Endpoint
 	{
-		//readoccurrencesDuration := duration.With(metrics.Field{Key: "method", Value: "ReadOccurrences})"
-		//readoccurrencesLogger := log.NewContext(logger).With("method", "ReadOccurrences)")
-
 		readoccurrencesEndpoint = svc.MakeReadOccurrencesEndpoint(service)
-		//readoccurrencesEndpoint = opentracing.TraceServer(tracer, "ReadOccurrences)")(readoccurrencesEndpoint)
-		//readoccurrencesEndpoint = svc.EndpointInstrumentingMiddleware(readoccurrencesDuration)(readoccurrencesEndpoint)
-		//readoccurrencesEndpoint = svc.EndpointLoggingMiddleware(readoccurrencesLogger)(readoccurrencesEndpoint)
+		// Add endpoint tracing, instrumentation and logging here
 	}
 
 	var createoccurrenceEndpoint endpoint.Endpoint
 	{
-		//createoccurrenceDuration := duration.With(metrics.Field{Key: "method", Value: "CreateOccurrence})"
-		//createoccurrenceLogger := log.NewContext(logger).With("method", "CreateOccurrence)")
-
 		createoccurrenceEndpoint = svc.MakeCreateOccurrenceEndpoint(service)
-		//createoccurrenceEndpoint = opentracing.TraceServer(tracer, "CreateOccurrence)")(createoccurrenceEndpoint)
-		//createoccurrenceEndpoint = svc.EndpointInstrumentingMiddleware(createoccurrenceDuration)(createoccurrenceEndpoint)
-		//createoccurrenceEndpoint = svc.EndpointLoggingMiddleware(createoccurrenceLogger)(createoccurrenceEndpoint)
+		// Add endpoint tracing, instrumentation and logging here
 	}
 
 	endpoints := svc.Endpoints{
-
 		ReadActionsEndpoint:      readactionsEndpoint,
 		ReadActionEndpoint:       readactionEndpoint,
 		CreateActionEndpoint:     createactionEndpoint,
@@ -218,7 +110,6 @@ func main() {
 		m.Handle("/debug/pprof/profile", http.HandlerFunc(pprof.Profile))
 		m.Handle("/debug/pprof/symbol", http.HandlerFunc(pprof.Symbol))
 		m.Handle("/debug/pprof/trace", http.HandlerFunc(pprof.Trace))
-		//m.Handle("/metrics", stdprometheus.Handler())
 
 		logger.Log("addr", *debugAddr)
 		errc <- http.ListenAndServe(*debugAddr, m)
@@ -227,7 +118,6 @@ func main() {
 	// HTTP transport.
 	go func() {
 		logger := log.NewContext(logger).With("transport", "HTTP")
-		//h := svc.MakeHTTPHandler(ctx, endpoints, tracer, logger)
 		h := svc.MakeHTTPHandler(ctx, endpoints, logger)
 		logger.Log("addr", *httpAddr)
 		errc <- http.ListenAndServe(*httpAddr, h)
@@ -243,7 +133,7 @@ func main() {
 			return
 		}
 
-		srv := svc.MakeGRPCServer(ctx, endpoints /*, tracer, logger*/)
+		srv := svc.MakeGRPCServer(ctx, endpoints)
 		s := grpc.NewServer()
 		pb.RegisterAmbitionServiceServer(s, srv)
 

@@ -12,10 +12,10 @@ import (
 	_ "github.com/go-kit/kit/log"
 	_ "github.com/go-kit/kit/metrics"
 
-	pb "github.com/adamryman/ambition-truss/ambition-service"
+	pb "github.com/adamryman/ambition-model/ambition-service"
 	// Userland
 
-	"github.com/adamryman/ambition-truss/model"
+	"github.com/adamryman/ambition-model/model"
 )
 
 // NewService returns a naïve, stateless implementation of Service.

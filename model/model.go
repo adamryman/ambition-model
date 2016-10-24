@@ -2,8 +2,8 @@ package model
 
 import (
 	//"fmt"
-	pb "github.com/adamryman/ambition-truss/ambition-service"
-	"github.com/adamryman/ambition-truss/database"
+	pb "github.com/adamryman/ambition-model/ambition-service"
+	"github.com/adamryman/ambition-model/database"
 )
 
 func init() {
