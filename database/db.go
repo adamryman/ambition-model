@@ -96,9 +96,9 @@ func ReadAction(req *pb.ReadActionRequest) (*pb.Action, error) {
 
 func CreateOccurrence(req *pb.CreateOccurrenceRequest) (*pb.Occurrence, error) {
 	var occurrence pb.Occurrence
-	const query = `INSERT occurrences SET action_id=?, time=?`
+	const query = `INSERT occurrences SET action_id=?, datetime=?, data=?`
 
-	id, err := exec(db, query, req.ActionId, req.Datetime)
+	id, err := exec(db, query, req.ActionId, req.Datetime, req.Data)
 	if err != nil {
 		return nil, err
 	}
@@ -106,6 +106,7 @@ func CreateOccurrence(req *pb.CreateOccurrenceRequest) (*pb.Occurrence, error) {
 	occurrence.OccurrenceId = id
 	occurrence.ActionId = req.ActionId
 	occurrence.Datetime = req.Datetime
+	occurrence.Data = req.Data
 
 	return &occurrence, nil
 }
