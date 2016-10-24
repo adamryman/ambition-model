@@ -144,6 +144,17 @@ func main() {
 		//readactionsEndpoint = svc.EndpointLoggingMiddleware(readactionsLogger)(readactionsEndpoint)
 	}
 
+	var readactionEndpoint endpoint.Endpoint
+	{
+		//readactionDuration := duration.With(metrics.Field{Key: "method", Value: "ReadAction})"
+		//readactionLogger := log.NewContext(logger).With("method", "ReadAction)")
+
+		readactionEndpoint = svc.MakeReadActionEndpoint(service)
+		//readactionEndpoint = opentracing.TraceServer(tracer, "ReadAction)")(readactionEndpoint)
+		//readactionEndpoint = svc.EndpointInstrumentingMiddleware(readactionDuration)(readactionEndpoint)
+		//readactionEndpoint = svc.EndpointLoggingMiddleware(readactionLogger)(readactionEndpoint)
+	}
+
 	var createactionEndpoint endpoint.Endpoint
 	{
 		//createactionDuration := duration.With(metrics.Field{Key: "method", Value: "CreateAction})"
@@ -180,6 +191,7 @@ func main() {
 	endpoints := svc.Endpoints{
 
 		ReadActionsEndpoint:      readactionsEndpoint,
+		ReadActionEndpoint:       readactionEndpoint,
 		CreateActionEndpoint:     createactionEndpoint,
 		ReadOccurrencesEndpoint:  readoccurrencesEndpoint,
 		CreateOccurrenceEndpoint: createoccurrenceEndpoint,

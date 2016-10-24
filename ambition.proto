@@ -12,37 +12,15 @@ service AmbitionService {
     };
   }
 */
-  rpc ReadActions(ActionsRequest) returns (ActionResponse) {
-    option (google.api.http) = {
-      get: "/action"
-    };
-  }
+  rpc ReadActions(ReadActionsRequest) returns (ActionsResponse) {}
 
-  rpc CreateAction(CreateActionRequest) returns (ActionResponse) {
-    option (google.api.http) = {
-      post: "/action"
-      body: "*"
-    };
-  }
-/*
-  rpc ReadOccurrence() returns (OccurrenceResponse) {
-    option (google.api.http) = {
-      get: "/occurrence/{OccurrenceId}"
-    };
-  }
-*/
-  rpc ReadOccurrences(OccurrencesRequest) returns (OccurrenceResponse) {
-    option (google.api.http) = {
-      get: "/action/{ActionId}"
-    };
-  }
+  rpc ReadAction(ReadActionRequest) returns (ActionResponse) {}
 
-  rpc CreateOccurrence(CreateOccurrenceRequest) returns (OccurrenceResponse) {
-    option (google.api.http) = {
-      post: "/action/{ActionId}"
-      body: "*"
-    };
-  }
+  rpc CreateAction(CreateActionRequest) returns (ActionResponse) {}
+
+  rpc ReadOccurrences(ReadOccurrencesRequest) returns (OccurrenceResponse) {}
+
+  rpc CreateOccurrence(CreateOccurrenceRequest) returns (OccurrenceResponse) {}
 
 }
 
@@ -51,12 +29,22 @@ message CreateActionRequest {
   string ActionName = 2;
 }
 
-message ActionsRequest {
+message ReadActionsRequest {
   int64 UserId = 1;
 }
 
+message ReadActionRequest {
+  int64 ActionId = 1;
+  string ActionName = 2;
+}
+
 message ActionResponse {
-  repeated Action Result = 1;
+  Action Action = 1;
+  string Error = 2;
+}
+
+message ActionsResponse {
+  repeated Action Actions = 1;
   string Error = 4;
 }
 
@@ -68,22 +56,33 @@ message Action {
 
 message CreateOccurrenceRequest {
   int64 ActionId = 1;
-  int64 EpocTime = 2;
+  string Datetime = 2;
+  string Data = 3;
 }
 
-message OccurrencesRequest {
+message ReadOccurrencesRequest {
   int64 UserId = 1;
   int64 ActionId = 2;
 }
 
+message ReadOccurrenceRequest {
+  int64 OccurrenceId = 1;
+}
+
 message OccurrenceResponse {
-  repeated Occurrence Result = 1;
+  Occurrence Occurrence = 1;
+  string Error = 2;
+}
+
+message OccurrencesResponse {
+  repeated Occurrence Occurrences = 1;
   string Error = 2;
 }
 
 message Occurrence {
   int64 OccurrenceId = 1;
   int64 ActionId = 2;
-  int64 EpocTime = 3;
+  string Datetime = 3;
+  string Data = 4;
 }
 

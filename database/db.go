@@ -11,11 +11,6 @@ import (
 	pb "github.com/adamryman/ambition-truss/ambition-service"
 )
 
-// Database type to extend with custom functions
-type Database struct {
-	db *sql.DB
-}
-
 type Configuration struct {
 	DBName     string
 	DBUser     string
@@ -24,9 +19,9 @@ type Configuration struct {
 	DBPort     string
 }
 
-var database Database
+var db *sql.DB
 
-func New() (*Database, error) {
+func New() error {
 	config := Configuration{
 		DBName:     os.Getenv("MYSQL_DATABASE"),
 		DBUser:     os.Getenv("MYSQL_USER"),
@@ -40,28 +35,22 @@ func New() (*Database, error) {
 
 	tempdb, err := sql.Open("mysql", dbString)
 	if err != nil {
-		return nil, errors.Wrapf(err, "could not open db connection %v", dbString)
+		return errors.Wrapf(err, "could not open db connection %v", dbString)
 	}
 
 	err = tempdb.Ping()
 	if err != nil {
-		return nil, errors.Wrapf(err, "could not ping database %v", dbString)
+		return errors.Wrapf(err, "could not ping database %v", dbString)
 	}
 
-	database = Database{
-		db: tempdb,
-	}
+	db = tempdb
 
-	return &database, nil
-}
-
-func (db Database) Test() {
-
+	return nil
 }
 
 // exec calls db.db.Exec with passed arguments and returns the id of the LastInsertId
-func (db Database) exec(query string, args ...interface{}) (int64, error) {
-	resp, err := db.db.Exec(query, args...)
+func exec(db *sql.DB, query string, args ...interface{}) (int64, error) {
+	resp, err := db.Exec(query, args...)
 	if err != nil {
 		return 0, errors.Wrapf(err, "unable to exec query: %v", query)
 	}
@@ -74,11 +63,11 @@ func (db Database) exec(query string, args ...interface{}) (int64, error) {
 	return id, nil
 }
 
-func (db Database) InsertAction(req *pb.CreateActionRequest) (*pb.Action, error) {
+func CreateAction(req *pb.CreateActionRequest) (*pb.Action, error) {
 	var action pb.Action
 	const query = `INSERT actions SET action_name=?, user_id=?`
 
-	id, err := db.exec(query, req.ActionName, req.UserId)
+	id, err := exec(db, query, req.ActionName, req.UserId)
 	if err != nil {
 		return nil, err
 	}
@@ -90,22 +79,36 @@ func (db Database) InsertAction(req *pb.CreateActionRequest) (*pb.Action, error)
 	return &action, nil
 }
 
-//func (db *Database) InsertOccurrence(req *pb.CreateOccurrenceRequest) (*pb.OccurrenceResponse, error) {
-//var occurrence pb.OccurrenceResponse
-//const query = `INSERT occurrences SET action_id=?, time=?`
+func ReadAction(req *pb.ReadActionRequest) (*pb.Action, error) {
+	var action pb.Action
+	const query = `SELECT * FROM actions WHERE action_id=?`
 
-//id, err := db.exec(query, req.ActionId, req.EpocTime)
-//if err != nil {
-//occurrence.Error = err.Error()
-//return &occurrence, err
-//}
+	resp := db.QueryRow(query, req.ActionId)
 
-//occurrence.OccurrenceId = id
-//occurrence.ActionId = req.ActionId
-//occurrence.EpocTime = req.EpocTime
+	err := resp.Scan(&action.ActionId, &action.ActionId, nil, &action.UserId)
+	if err != nil {
+		return nil, err
+	}
 
-//return &occurrence, nil
-//}
+	return &action, nil
+
+}
+
+func CreateOccurrence(req *pb.CreateOccurrenceRequest) (*pb.Occurrence, error) {
+	var occurrence pb.Occurrence
+	const query = `INSERT occurrences SET action_id=?, time=?`
+
+	id, err := exec(db, query, req.ActionId, req.Datetime)
+	if err != nil {
+		return nil, err
+	}
+
+	occurrence.OccurrenceId = id
+	occurrence.ActionId = req.ActionId
+	occurrence.Datetime = req.Datetime
+
+	return &occurrence, nil
+}
 
 /*
 func (db DB) CreateUser(user) error {

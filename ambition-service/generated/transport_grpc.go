@@ -30,6 +30,13 @@ func MakeGRPCServer(ctx context.Context, endpoints Endpoints /*, tracer stdopent
 			EncodeGRPCReadActionsResponse,
 			//append(options,grpctransport.ServerBefore(opentracing.FromGRPCRequest(tracer, "ReadActions", logger)))...,
 		),
+		readaction: grpctransport.NewServer(
+			ctx,
+			endpoints.ReadActionEndpoint,
+			DecodeGRPCReadActionRequest,
+			EncodeGRPCReadActionResponse,
+			//append(options,grpctransport.ServerBefore(opentracing.FromGRPCRequest(tracer, "ReadAction", logger)))...,
+		),
 		createaction: grpctransport.NewServer(
 			ctx,
 			endpoints.CreateActionEndpoint,
@@ -56,6 +63,7 @@ func MakeGRPCServer(ctx context.Context, endpoints Endpoints /*, tracer stdopent
 
 type grpcServer struct {
 	readactions      grpctransport.Handler
+	readaction       grpctransport.Handler
 	createaction     grpctransport.Handler
 	readoccurrences  grpctransport.Handler
 	createoccurrence grpctransport.Handler
@@ -63,8 +71,16 @@ type grpcServer struct {
 
 // Methods
 
-func (s *grpcServer) ReadActions(ctx context.Context, req *pb.ActionsRequest) (*pb.ActionResponse, error) {
+func (s *grpcServer) ReadActions(ctx context.Context, req *pb.ReadActionsRequest) (*pb.ActionsResponse, error) {
 	_, rep, err := s.readactions.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*pb.ActionsResponse), nil
+}
+
+func (s *grpcServer) ReadAction(ctx context.Context, req *pb.ReadActionRequest) (*pb.ActionResponse, error) {
+	_, rep, err := s.readaction.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +95,7 @@ func (s *grpcServer) CreateAction(ctx context.Context, req *pb.CreateActionReque
 	return rep.(*pb.ActionResponse), nil
 }
 
-func (s *grpcServer) ReadOccurrences(ctx context.Context, req *pb.OccurrencesRequest) (*pb.OccurrenceResponse, error) {
+func (s *grpcServer) ReadOccurrences(ctx context.Context, req *pb.ReadOccurrencesRequest) (*pb.OccurrenceResponse, error) {
 	_, rep, err := s.readoccurrences.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
@@ -100,7 +116,14 @@ func (s *grpcServer) CreateOccurrence(ctx context.Context, req *pb.CreateOccurre
 // DecodeGRPCReadActionsRequest is a transport/grpc.DecodeRequestFunc that converts a
 // gRPC readactions request to a user-domain readactions request. Primarily useful in a server.
 func DecodeGRPCReadActionsRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
-	req := grpcReq.(*pb.ActionsRequest)
+	req := grpcReq.(*pb.ReadActionsRequest)
+	return req, nil
+}
+
+// DecodeGRPCReadActionRequest is a transport/grpc.DecodeRequestFunc that converts a
+// gRPC readaction request to a user-domain readaction request. Primarily useful in a server.
+func DecodeGRPCReadActionRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
+	req := grpcReq.(*pb.ReadActionRequest)
 	return req, nil
 }
 
@@ -114,7 +137,7 @@ func DecodeGRPCCreateActionRequest(_ context.Context, grpcReq interface{}) (inte
 // DecodeGRPCReadOccurrencesRequest is a transport/grpc.DecodeRequestFunc that converts a
 // gRPC readoccurrences request to a user-domain readoccurrences request. Primarily useful in a server.
 func DecodeGRPCReadOccurrencesRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
-	req := grpcReq.(*pb.OccurrencesRequest)
+	req := grpcReq.(*pb.ReadOccurrencesRequest)
 	return req, nil
 }
 
@@ -130,6 +153,13 @@ func DecodeGRPCCreateOccurrenceRequest(_ context.Context, grpcReq interface{}) (
 // DecodeGRPCReadActionsResponse is a transport/grpc.DecodeResponseFunc that converts a
 // gRPC readactions reply to a user-domain readactions response. Primarily useful in a client.
 func DecodeGRPCReadActionsResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
+	reply := grpcReply.(*pb.ActionsResponse)
+	return reply, nil
+}
+
+// DecodeGRPCReadActionResponse is a transport/grpc.DecodeResponseFunc that converts a
+// gRPC readaction reply to a user-domain readaction response. Primarily useful in a client.
+func DecodeGRPCReadActionResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
 	reply := grpcReply.(*pb.ActionResponse)
 	return reply, nil
 }
@@ -160,6 +190,13 @@ func DecodeGRPCCreateOccurrenceResponse(_ context.Context, grpcReply interface{}
 // EncodeGRPCReadActionsResponse is a transport/grpc.EncodeResponseFunc that converts a
 // user-domain readactions response to a gRPC readactions reply. Primarily useful in a server.
 func EncodeGRPCReadActionsResponse(_ context.Context, response interface{}) (interface{}, error) {
+	resp := response.(*pb.ActionsResponse)
+	return resp, nil
+}
+
+// EncodeGRPCReadActionResponse is a transport/grpc.EncodeResponseFunc that converts a
+// user-domain readaction response to a gRPC readaction reply. Primarily useful in a server.
+func EncodeGRPCReadActionResponse(_ context.Context, response interface{}) (interface{}, error) {
 	resp := response.(*pb.ActionResponse)
 	return resp, nil
 }
@@ -190,7 +227,14 @@ func EncodeGRPCCreateOccurrenceResponse(_ context.Context, response interface{})
 // EncodeGRPCReadActionsRequest is a transport/grpc.EncodeRequestFunc that converts a
 // user-domain readactions request to a gRPC readactions request. Primarily useful in a client.
 func EncodeGRPCReadActionsRequest(_ context.Context, request interface{}) (interface{}, error) {
-	req := request.(*pb.ActionsRequest)
+	req := request.(*pb.ReadActionsRequest)
+	return req, nil
+}
+
+// EncodeGRPCReadActionRequest is a transport/grpc.EncodeRequestFunc that converts a
+// user-domain readaction request to a gRPC readaction request. Primarily useful in a client.
+func EncodeGRPCReadActionRequest(_ context.Context, request interface{}) (interface{}, error) {
+	req := request.(*pb.ReadActionRequest)
 	return req, nil
 }
 
@@ -204,7 +248,7 @@ func EncodeGRPCCreateActionRequest(_ context.Context, request interface{}) (inte
 // EncodeGRPCReadOccurrencesRequest is a transport/grpc.EncodeRequestFunc that converts a
 // user-domain readoccurrences request to a gRPC readoccurrences request. Primarily useful in a client.
 func EncodeGRPCReadOccurrencesRequest(_ context.Context, request interface{}) (interface{}, error) {
-	req := request.(*pb.OccurrencesRequest)
+	req := request.(*pb.ReadOccurrencesRequest)
 	return req, nil
 }
 

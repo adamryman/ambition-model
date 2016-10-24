@@ -41,7 +41,7 @@ func New(conn *grpc.ClientConn /*, tracer stdopentracing.Tracer, logger log.Logg
 			"ReadActions",
 			svc.EncodeGRPCReadActionsRequest,
 			svc.DecodeGRPCReadActionsResponse,
-			pb.ActionResponse{},
+			pb.ActionsResponse{},
 			//grpctransport.ClientBefore(opentracing.FromGRPCRequest(tracer, "ReadActions", logger)),
 		).Endpoint()
 		//readactionsEndpoint = opentracing.TraceClient(tracer, "ReadActions")(readactionsEndpoint)
@@ -50,6 +50,25 @@ func New(conn *grpc.ClientConn /*, tracer stdopentracing.Tracer, logger log.Logg
 		//Name:    "ReadActions",
 		//Timeout: 30 * time.Second,
 		//}))(readactionsEndpoint)
+	}
+
+	var readactionEndpoint endpoint.Endpoint
+	{
+		readactionEndpoint = grpctransport.NewClient(
+			conn,
+			"ambition.AmbitionService",
+			"ReadAction",
+			svc.EncodeGRPCReadActionRequest,
+			svc.DecodeGRPCReadActionResponse,
+			pb.ActionResponse{},
+			//grpctransport.ClientBefore(opentracing.FromGRPCRequest(tracer, "ReadAction", logger)),
+		).Endpoint()
+		//readactionEndpoint = opentracing.TraceClient(tracer, "ReadAction")(readactionEndpoint)
+		//readactionEndpoint = limiter(readactionEndpoint)
+		//readactionEndpoint = circuitbreaker.Gobreaker(gobreaker.NewCircuitBreaker(gobreaker.Settings{
+		//Name:    "ReadAction",
+		//Timeout: 30 * time.Second,
+		//}))(readactionEndpoint)
 	}
 
 	var createactionEndpoint endpoint.Endpoint
@@ -112,6 +131,7 @@ func New(conn *grpc.ClientConn /*, tracer stdopentracing.Tracer, logger log.Logg
 	return svc.Endpoints{
 
 		ReadActionsEndpoint:      readactionsEndpoint,
+		ReadActionEndpoint:       readactionEndpoint,
 		CreateActionEndpoint:     createactionEndpoint,
 		ReadOccurrencesEndpoint:  readoccurrencesEndpoint,
 		CreateOccurrenceEndpoint: createoccurrenceEndpoint,

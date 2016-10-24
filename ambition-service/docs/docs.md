@@ -96,13 +96,22 @@ th:nth-child(4) {
 | UserId | TYPE_INT64 | 1 |  |
 | ActionName | TYPE_STRING | 2 |  |
 
-<a name="ActionsRequest"></a>
+<a name="ReadActionsRequest"></a>
 
-#### ActionsRequest
+#### ReadActionsRequest
 
 | Name | Type | Field Number | Description|
 | ---- | ---- | ------------ | -----------|
 | UserId | TYPE_INT64 | 1 |  |
+
+<a name="ReadActionRequest"></a>
+
+#### ReadActionRequest
+
+| Name | Type | Field Number | Description|
+| ---- | ---- | ------------ | -----------|
+| ActionId | TYPE_INT64 | 1 |  |
+| ActionName | TYPE_STRING | 2 |  |
 
 <a name="ActionResponse"></a>
 
@@ -110,7 +119,16 @@ th:nth-child(4) {
 
 | Name | Type | Field Number | Description|
 | ---- | ---- | ------------ | -----------|
-| Result | [Action](#Action) | 1 |  |
+| Action | [Action](#Action) | 1 |  |
+| Error | TYPE_STRING | 2 |  |
+
+<a name="ActionsResponse"></a>
+
+#### ActionsResponse
+
+| Name | Type | Field Number | Description|
+| ---- | ---- | ------------ | -----------|
+| Actions | [Action](#Action) | 1 |  |
 | Error | TYPE_STRING | 4 |  |
 
 <a name="Action"></a>
@@ -130,16 +148,25 @@ th:nth-child(4) {
 | Name | Type | Field Number | Description|
 | ---- | ---- | ------------ | -----------|
 | ActionId | TYPE_INT64 | 1 |  |
-| EpocTime | TYPE_INT64 | 2 |  |
+| Datetime | TYPE_STRING | 2 |  |
+| Data | TYPE_STRING | 3 |  |
 
-<a name="OccurrencesRequest"></a>
+<a name="ReadOccurrencesRequest"></a>
 
-#### OccurrencesRequest
+#### ReadOccurrencesRequest
 
 | Name | Type | Field Number | Description|
 | ---- | ---- | ------------ | -----------|
 | UserId | TYPE_INT64 | 1 |  |
 | ActionId | TYPE_INT64 | 2 |  |
+
+<a name="ReadOccurrenceRequest"></a>
+
+#### ReadOccurrenceRequest
+
+| Name | Type | Field Number | Description|
+| ---- | ---- | ------------ | -----------|
+| OccurrenceId | TYPE_INT64 | 1 |  |
 
 <a name="OccurrenceResponse"></a>
 
@@ -147,7 +174,16 @@ th:nth-child(4) {
 
 | Name | Type | Field Number | Description|
 | ---- | ---- | ------------ | -----------|
-| Result | [Occurrence](#Occurrence) | 1 |  |
+| Occurrence | [Occurrence](#Occurrence) | 1 |  |
+| Error | TYPE_STRING | 2 |  |
+
+<a name="OccurrencesResponse"></a>
+
+#### OccurrencesResponse
+
+| Name | Type | Field Number | Description|
+| ---- | ---- | ------------ | -----------|
+| Occurrences | [Occurrence](#Occurrence) | 1 |  |
 | Error | TYPE_STRING | 2 |  |
 
 <a name="Occurrence"></a>
@@ -158,7 +194,8 @@ th:nth-child(4) {
 | ---- | ---- | ------------ | -----------|
 | OccurrenceId | TYPE_INT64 | 1 |  |
 | ActionId | TYPE_INT64 | 2 |  |
-| EpocTime | TYPE_INT64 | 3 |  |
+| Datetime | TYPE_STRING | 3 |  |
+| Data | TYPE_STRING | 4 |  |
 
 ### Services
 
@@ -166,53 +203,15 @@ th:nth-child(4) {
 
 | Method Name | Request Type | Response Type | Description|
 | ---- | ---- | ------------ | -----------|
-| ReadActions | ActionsRequest | ActionResponse | rpc ReadAction() returns (ActionResponse) {
+| ReadActions | ReadActionsRequest | ActionsResponse | rpc ReadAction() returns (ActionResponse) {
 option (google.api.http) = {
 get: "/action/{ActionId}"
 };
 } |
+| ReadAction | ReadActionRequest | ActionResponse |  |
 | CreateAction | CreateActionRequest | ActionResponse |  |
-| ReadOccurrences | OccurrencesRequest | OccurrenceResponse | rpc ReadOccurrence() returns (OccurrenceResponse) {
-option (google.api.http) = {
-get: "/occurrence/{OccurrenceId}"
-};
-} |
+| ReadOccurrences | ReadOccurrencesRequest | OccurrenceResponse |  |
 | CreateOccurrence | CreateOccurrenceRequest | OccurrenceResponse |  |
 
 #### AmbitionService - Http Methods
-
-##### GET `/action`
-
-
-
-| Parameter Name | Location | Type |
-| ---- | ---- | ------------ |
-| UserId | query | TYPE_INT64 |
-
-##### POST `/action`
-
-
-
-| Parameter Name | Location | Type |
-| ---- | ---- | ------------ |
-| UserId | body | TYPE_INT64 |
-| ActionName | body | TYPE_STRING |
-
-##### GET `/action/{ActionId}`
-
-
-
-| Parameter Name | Location | Type |
-| ---- | ---- | ------------ |
-| UserId | query | TYPE_INT64 |
-| ActionId | path | TYPE_INT64 |
-
-##### POST `/action/{ActionId}`
-
-
-
-| Parameter Name | Location | Type |
-| ---- | ---- | ------------ |
-| ActionId | path | TYPE_INT64 |
-| EpocTime | body | TYPE_INT64 |
 
