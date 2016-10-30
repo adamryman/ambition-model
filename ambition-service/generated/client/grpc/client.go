@@ -2,7 +2,10 @@
 package grpc
 
 import (
+	"github.com/pkg/errors"
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 
 	"github.com/go-kit/kit/endpoint"
 	grpctransport "github.com/go-kit/kit/transport/grpc"
@@ -15,10 +18,20 @@ import (
 
 // New returns an service backed by a gRPC client connection. It is the
 // responsibility of the caller to dial, and later close, the connection.
-func New(conn *grpc.ClientConn) handler.Service {
-	//options := []grpctransport.ServerOption{
-	//grpctransport.ServerBefore(),
-	//}
+func New(conn *grpc.ClientConn, options ...ClientOption) (handler.Service, error) {
+	var cc clientConfig
+
+	for _, f := range options {
+		err := f(&cc)
+		if err != nil {
+			return nil, errors.Wrap(err, "cannot apply option")
+		}
+	}
+
+	clientOptions := []grpctransport.ClientOption{
+		grpctransport.ClientBefore(
+			contextValuesToGRPCMetadata(cc.headers)),
+	}
 	var readactionsEndpoint endpoint.Endpoint
 	{
 		readactionsEndpoint = grpctransport.NewClient(
@@ -28,7 +41,7 @@ func New(conn *grpc.ClientConn) handler.Service {
 			svc.EncodeGRPCReadActionsRequest,
 			svc.DecodeGRPCReadActionsResponse,
 			pb.ActionsResponse{},
-			//options...,
+			clientOptions...,
 		).Endpoint()
 	}
 
@@ -41,7 +54,7 @@ func New(conn *grpc.ClientConn) handler.Service {
 			svc.EncodeGRPCReadActionRequest,
 			svc.DecodeGRPCReadActionResponse,
 			pb.ActionResponse{},
-			//options...,
+			clientOptions...,
 		).Endpoint()
 	}
 
@@ -54,7 +67,7 @@ func New(conn *grpc.ClientConn) handler.Service {
 			svc.EncodeGRPCCreateActionRequest,
 			svc.DecodeGRPCCreateActionResponse,
 			pb.ActionResponse{},
-			//options...,
+			clientOptions...,
 		).Endpoint()
 	}
 
@@ -67,7 +80,7 @@ func New(conn *grpc.ClientConn) handler.Service {
 			svc.EncodeGRPCReadOccurrencesRequest,
 			svc.DecodeGRPCReadOccurrencesResponse,
 			pb.OccurrenceResponse{},
-			//options...,
+			clientOptions...,
 		).Endpoint()
 	}
 
@@ -80,7 +93,7 @@ func New(conn *grpc.ClientConn) handler.Service {
 			svc.EncodeGRPCCreateOccurrenceRequest,
 			svc.DecodeGRPCCreateOccurrenceResponse,
 			pb.OccurrenceResponse{},
-			//options...,
+			clientOptions...,
 		).Endpoint()
 	}
 
@@ -90,5 +103,36 @@ func New(conn *grpc.ClientConn) handler.Service {
 		CreateActionEndpoint:     createactionEndpoint,
 		ReadOccurrencesEndpoint:  readoccurrencesEndpoint,
 		CreateOccurrenceEndpoint: createoccurrenceEndpoint,
+	}, nil
+}
+
+type clientConfig struct {
+	headers []string
+}
+
+// ClientOption is a function that modifies the client config
+type ClientOption func(*clientConfig) error
+
+func CtxValuesToSend(keys ...string) ClientOption {
+	return func(o *clientConfig) error {
+		o.headers = keys
+		return nil
+	}
+}
+
+func contextValuesToGRPCMetadata(keys []string) grpctransport.RequestFunc {
+	return func(ctx context.Context, md *metadata.MD) context.Context {
+		var pairs []string
+		for _, k := range keys {
+			if v, ok := ctx.Value(k).(string); ok {
+				pairs = append(pairs, k, v)
+			}
+		}
+
+		if pairs != nil {
+			*md = metadata.Join(*md, metadata.Pairs(pairs...))
+		}
+
+		return ctx
 	}
 }

@@ -4,7 +4,10 @@ package svc
 // It utilizes the transport/grpc.Server.
 
 import (
+	"net/http"
+
 	"golang.org/x/net/context"
+	"google.golang.org/grpc/metadata"
 
 	grpctransport "github.com/go-kit/kit/transport/grpc"
 
@@ -14,9 +17,9 @@ import (
 
 // MakeGRPCServer makes a set of endpoints available as a gRPC AmbitionServiceServer.
 func MakeGRPCServer(ctx context.Context, endpoints Endpoints) pb.AmbitionServiceServer {
-	//options := []grpctransport.ServerOption{
-	// grpctransport.ServiceBefore()
-	//}
+	serverOptions := []grpctransport.ServerOption{
+		grpctransport.ServerBefore(metadataToContext),
+	}
 	return &grpcServer{
 		// ambitionservice
 
@@ -25,35 +28,35 @@ func MakeGRPCServer(ctx context.Context, endpoints Endpoints) pb.AmbitionService
 			endpoints.ReadActionsEndpoint,
 			DecodeGRPCReadActionsRequest,
 			EncodeGRPCReadActionsResponse,
-			//options...,
+			serverOptions...,
 		),
 		readaction: grpctransport.NewServer(
 			ctx,
 			endpoints.ReadActionEndpoint,
 			DecodeGRPCReadActionRequest,
 			EncodeGRPCReadActionResponse,
-			//options...,
+			serverOptions...,
 		),
 		createaction: grpctransport.NewServer(
 			ctx,
 			endpoints.CreateActionEndpoint,
 			DecodeGRPCCreateActionRequest,
 			EncodeGRPCCreateActionResponse,
-			//options...,
+			serverOptions...,
 		),
 		readoccurrences: grpctransport.NewServer(
 			ctx,
 			endpoints.ReadOccurrencesEndpoint,
 			DecodeGRPCReadOccurrencesRequest,
 			EncodeGRPCReadOccurrencesResponse,
-			//options...,
+			serverOptions...,
 		),
 		createoccurrence: grpctransport.NewServer(
 			ctx,
 			endpoints.CreateOccurrenceEndpoint,
 			DecodeGRPCCreateOccurrenceRequest,
 			EncodeGRPCCreateOccurrenceResponse,
-			//options...,
+			serverOptions...,
 		),
 	}
 }
@@ -255,4 +258,20 @@ func EncodeGRPCReadOccurrencesRequest(_ context.Context, request interface{}) (i
 func EncodeGRPCCreateOccurrenceRequest(_ context.Context, request interface{}) (interface{}, error) {
 	req := request.(*pb.CreateOccurrenceRequest)
 	return req, nil
+}
+
+// Helpers
+
+func metadataToContext(ctx context.Context, md *metadata.MD) context.Context {
+	for k, v := range *md {
+		if v != nil {
+			// The key is added both in metadata format (k) which is all lower
+			// and the http.CanonicalHeaderKey of the key so that it can be
+			// accessed in either format
+			ctx = context.WithValue(ctx, k, v[0])
+			ctx = context.WithValue(ctx, http.CanonicalHeaderKey(k), v[0])
+		}
+	}
+
+	return ctx
 }

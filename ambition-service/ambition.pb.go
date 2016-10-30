@@ -221,12 +221,6 @@ const _ = grpc.SupportPackageIsVersion3
 // Client API for AmbitionService service
 
 type AmbitionServiceClient interface {
-	//
-	// rpc ReadAction() returns (ActionResponse) {
-	// option (google.api.http) = {
-	// get: "/action/{ActionId}"
-	// };
-	// }
 	ReadActions(ctx context.Context, in *ReadActionsRequest, opts ...grpc.CallOption) (*ActionsResponse, error)
 	ReadAction(ctx context.Context, in *ReadActionRequest, opts ...grpc.CallOption) (*ActionResponse, error)
 	CreateAction(ctx context.Context, in *CreateActionRequest, opts ...grpc.CallOption) (*ActionResponse, error)
@@ -290,12 +284,6 @@ func (c *ambitionServiceClient) CreateOccurrence(ctx context.Context, in *Create
 // Server API for AmbitionService service
 
 type AmbitionServiceServer interface {
-	//
-	// rpc ReadAction() returns (ActionResponse) {
-	// option (google.api.http) = {
-	// get: "/action/{ActionId}"
-	// };
-	// }
 	ReadActions(context.Context, *ReadActionsRequest) (*ActionsResponse, error)
 	ReadAction(context.Context, *ReadActionRequest) (*ActionResponse, error)
 	CreateAction(context.Context, *CreateActionRequest) (*ActionResponse, error)

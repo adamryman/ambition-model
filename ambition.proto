@@ -5,13 +5,6 @@ package ambition;
 import "google/api/annotations.proto";
 
 service AmbitionService {
-/*
-  rpc ReadAction() returns (ActionResponse) {
-    option (google.api.http) = {
-      get: "/action/{ActionId}"
-    };
-  }
-*/
   rpc ReadActions(ReadActionsRequest) returns (ActionsResponse) {}
 
   rpc ReadAction(ReadActionRequest) returns (ActionResponse) {}
@@ -21,7 +14,6 @@ service AmbitionService {
   rpc ReadOccurrences(ReadOccurrencesRequest) returns (OccurrenceResponse) {}
 
   rpc CreateOccurrence(CreateOccurrenceRequest) returns (OccurrenceResponse) {}
-
 }
 
 message CreateActionRequest {

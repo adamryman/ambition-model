@@ -203,11 +203,7 @@ th:nth-child(4) {
 
 | Method Name | Request Type | Response Type | Description|
 | ---- | ---- | ------------ | -----------|
-| ReadActions | ReadActionsRequest | ActionsResponse | rpc ReadAction() returns (ActionResponse) {
-option (google.api.http) = {
-get: "/action/{ActionId}"
-};
-} |
+| ReadActions | ReadActionsRequest | ActionsResponse |  |
 | ReadAction | ReadActionRequest | ActionResponse |  |
 | CreateAction | CreateActionRequest | ActionResponse |  |
 | ReadOccurrences | ReadOccurrencesRequest | OccurrenceResponse |  |
