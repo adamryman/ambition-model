@@ -13,37 +13,15 @@ import (
 	_ "github.com/go-kit/kit/metrics"
 
 	pb "github.com/adamryman/ambition-model/ambition-service"
-	// Userland
-
 	"github.com/adamryman/ambition-model/model"
 )
 
 // NewService returns a naïve, stateless implementation of Service.
-
-type ambitionService struct{}
-
 func NewService() Service {
 	return ambitionService{}
 }
 
-// CreateAction implements Service.
-func (s ambitionService) CreateAction(ctx context.Context, in *pb.CreateActionRequest) (*pb.ActionResponse, error) {
-	_ = ctx
-	_ = in
-
-	return model.CreateAction(in)
-}
-
-// CreateOccurrence implements Service.
-func (s ambitionService) CreateOccurrence(ctx context.Context, in *pb.CreateOccurrenceRequest) (*pb.OccurrenceResponse, error) {
-
-	return model.CreateOccurrence(in)
-}
-
-// ReadAction implements Service.
-func (s ambitionService) ReadAction(ctx context.Context, in *pb.ReadActionRequest) (*pb.ActionResponse, error) {
-	return model.ReadAction(in)
-}
+type ambitionService struct{}
 
 // ReadActions implements Service.
 func (s ambitionService) ReadActions(ctx context.Context, in *pb.ReadActionsRequest) (*pb.ActionsResponse, error) {
@@ -56,8 +34,18 @@ func (s ambitionService) ReadActions(ctx context.Context, in *pb.ReadActionsRequ
 	return &response, nil
 }
 
+// ReadAction implements Service.
+func (s ambitionService) ReadAction(ctx context.Context, in *pb.Action) (*pb.ActionResponse, error) {
+	return model.ReadAction(in)
+}
+
+// CreateAction implements Service.
+func (s ambitionService) CreateAction(ctx context.Context, in *pb.Action) (*pb.ActionResponse, error) {
+	return model.CreateAction(in)
+}
+
 // ReadOccurrences implements Service.
-func (s ambitionService) ReadOccurrences(ctx context.Context, in *pb.ReadOccurrencesRequest) (*pb.OccurrenceResponse, error) {
+func (s ambitionService) ReadOccurrences(ctx context.Context, in *pb.Occurrence) (*pb.OccurrenceResponse, error) {
 	_ = ctx
 	_ = in
 	response := pb.OccurrenceResponse{
@@ -67,10 +55,19 @@ func (s ambitionService) ReadOccurrences(ctx context.Context, in *pb.ReadOccurre
 	return &response, nil
 }
 
+// CreateOccurrence implements Service.
+func (s ambitionService) CreateOccurrence(ctx context.Context, in *pb.Occurrence) (*pb.OccurrenceResponse, error) {
+	var o pb.CreateOccurrenceRequest
+	o.ActionId = in.ActionId
+	o.Datetime = in.Datetime
+
+	return model.CreateOccurrence(&o)
+}
+
 type Service interface {
 	ReadActions(ctx context.Context, in *pb.ReadActionsRequest) (*pb.ActionsResponse, error)
-	ReadAction(ctx context.Context, in *pb.ReadActionRequest) (*pb.ActionResponse, error)
-	CreateAction(ctx context.Context, in *pb.CreateActionRequest) (*pb.ActionResponse, error)
-	ReadOccurrences(ctx context.Context, in *pb.ReadOccurrencesRequest) (*pb.OccurrenceResponse, error)
-	CreateOccurrence(ctx context.Context, in *pb.CreateOccurrenceRequest) (*pb.OccurrenceResponse, error)
+	ReadAction(ctx context.Context, in *pb.Action) (*pb.ActionResponse, error)
+	CreateAction(ctx context.Context, in *pb.Action) (*pb.ActionResponse, error)
+	ReadOccurrences(ctx context.Context, in *pb.Occurrence) (*pb.OccurrenceResponse, error)
+	CreateOccurrence(ctx context.Context, in *pb.Occurrence) (*pb.OccurrenceResponse, error)
 }

@@ -43,7 +43,7 @@ func main() {
 	defer logger.Log("msg", "goodbye")
 
 	// Business domain.
-	var service handler.Service
+	var service pb.AmbitionServiceServer
 	{
 		service = handler.NewService()
 		// add service logging and metrics here

@@ -7,27 +7,21 @@ import "google/api/annotations.proto";
 service AmbitionService {
   rpc ReadActions(ReadActionsRequest) returns (ActionsResponse) {}
 
-  rpc ReadAction(ReadActionRequest) returns (ActionResponse) {}
+  rpc ReadAction(Action) returns (ActionResponse) {}
 
-  rpc CreateAction(CreateActionRequest) returns (ActionResponse) {}
+  rpc CreateAction(Action) returns (ActionResponse) {}
 
-  rpc ReadOccurrences(ReadOccurrencesRequest) returns (OccurrenceResponse) {}
+  rpc ReadOccurrences(Occurrence) returns (OccurrenceResponse) {}
 
-  rpc CreateOccurrence(CreateOccurrenceRequest) returns (OccurrenceResponse) {}
+  rpc CreateOccurrence(Occurrence) returns (OccurrenceResponse) {}
 }
 
-message CreateActionRequest {
-  int64 UserId = 1;
-  string ActionName = 2;
-}
+/*message CreateActionRequest {*/
+  /*Action Action = 1;*/
+/*}*/
 
 message ReadActionsRequest {
   int64 UserId = 1;
-}
-
-message ReadActionRequest {
-  int64 ActionId = 1;
-  string ActionName = 2;
 }
 
 message ActionResponse {
@@ -44,6 +38,7 @@ message Action {
   int64 ActionId = 1;
   int64 UserId = 2;
   string ActionName = 3;
+  string TrelloId = 4;
 }
 
 message CreateOccurrenceRequest {

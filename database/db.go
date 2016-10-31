@@ -21,6 +21,40 @@ type Configuration struct {
 
 var db *sql.DB
 
+type DBAction struct {
+	*pb.Action
+}
+
+func Action(a *pb.Action) DBAction {
+	return DBAction{a}
+}
+
+func (a *DBAction) ReadByActionId() error {
+	const query = `SELECT * FROM actions WHERE id=?`
+
+	resp := db.QueryRow(query, a.ActionId)
+
+	err := resp.Scan(a.ActionId, a.ActionName, a.UserId, a.TrelloId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (a *DBAction) ReadByTrelloId() error {
+	const query = `SELECT * FROM actions WHERE trello_id=?`
+
+	resp := db.QueryRow(query, a.TrelloId)
+
+	err := resp.Scan(&a.ActionId, &a.ActionName, &a.UserId, &a.TrelloId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func New() error {
 	config := Configuration{
 		DBName:     os.Getenv("MYSQL_DATABASE"),
@@ -63,35 +97,16 @@ func exec(db *sql.DB, query string, args ...interface{}) (int64, error) {
 	return id, nil
 }
 
-func CreateAction(req *pb.CreateActionRequest) (*pb.Action, error) {
-	var action pb.Action
-	const query = `INSERT actions SET action_name=?, user_id=?`
+func (a *DBAction) Create() error {
+	const query = `INSERT actions SET action_name=?, user_id=?, trello_id=?`
 
-	id, err := exec(db, query, req.ActionName, req.UserId)
+	id, err := exec(db, query, a.ActionName, a.UserId, a.TrelloId)
 	if err != nil {
-		return nil, err
+		return err
 	}
+	a.ActionId = id
 
-	action.ActionId = id
-	action.UserId = req.UserId
-	action.ActionName = req.ActionName
-
-	return &action, nil
-}
-
-func ReadAction(req *pb.ReadActionRequest) (*pb.Action, error) {
-	var action pb.Action
-	const query = `SELECT * FROM actions WHERE action_id=?`
-
-	resp := db.QueryRow(query, req.ActionId)
-
-	err := resp.Scan(&action.ActionId, &action.ActionId, nil, &action.UserId)
-	if err != nil {
-		return nil, err
-	}
-
-	return &action, nil
-
+	return nil
 }
 
 func CreateOccurrence(req *pb.CreateOccurrenceRequest) (*pb.Occurrence, error) {

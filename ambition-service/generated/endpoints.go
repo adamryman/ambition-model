@@ -11,7 +11,6 @@ import (
 	"github.com/go-kit/kit/endpoint"
 
 	pb "github.com/adamryman/ambition-model/ambition-service"
-	handler "github.com/adamryman/ambition-model/ambition-service/handlers/server"
 )
 
 // Endpoints collects all of the endpoints that compose an add service. It's
@@ -46,7 +45,7 @@ func (e Endpoints) ReadActions(ctx context.Context, in *pb.ReadActionsRequest) (
 	return response.(*pb.ActionsResponse), nil
 }
 
-func (e Endpoints) ReadAction(ctx context.Context, in *pb.ReadActionRequest) (*pb.ActionResponse, error) {
+func (e Endpoints) ReadAction(ctx context.Context, in *pb.Action) (*pb.ActionResponse, error) {
 	response, err := e.ReadActionEndpoint(ctx, in)
 	if err != nil {
 		return nil, err
@@ -54,7 +53,7 @@ func (e Endpoints) ReadAction(ctx context.Context, in *pb.ReadActionRequest) (*p
 	return response.(*pb.ActionResponse), nil
 }
 
-func (e Endpoints) CreateAction(ctx context.Context, in *pb.CreateActionRequest) (*pb.ActionResponse, error) {
+func (e Endpoints) CreateAction(ctx context.Context, in *pb.Action) (*pb.ActionResponse, error) {
 	response, err := e.CreateActionEndpoint(ctx, in)
 	if err != nil {
 		return nil, err
@@ -62,7 +61,7 @@ func (e Endpoints) CreateAction(ctx context.Context, in *pb.CreateActionRequest)
 	return response.(*pb.ActionResponse), nil
 }
 
-func (e Endpoints) ReadOccurrences(ctx context.Context, in *pb.ReadOccurrencesRequest) (*pb.OccurrenceResponse, error) {
+func (e Endpoints) ReadOccurrences(ctx context.Context, in *pb.Occurrence) (*pb.OccurrenceResponse, error) {
 	response, err := e.ReadOccurrencesEndpoint(ctx, in)
 	if err != nil {
 		return nil, err
@@ -70,7 +69,7 @@ func (e Endpoints) ReadOccurrences(ctx context.Context, in *pb.ReadOccurrencesRe
 	return response.(*pb.OccurrenceResponse), nil
 }
 
-func (e Endpoints) CreateOccurrence(ctx context.Context, in *pb.CreateOccurrenceRequest) (*pb.OccurrenceResponse, error) {
+func (e Endpoints) CreateOccurrence(ctx context.Context, in *pb.Occurrence) (*pb.OccurrenceResponse, error) {
 	response, err := e.CreateOccurrenceEndpoint(ctx, in)
 	if err != nil {
 		return nil, err
@@ -80,7 +79,7 @@ func (e Endpoints) CreateOccurrence(ctx context.Context, in *pb.CreateOccurrence
 
 // Make Endpoints
 
-func MakeReadActionsEndpoint(s handler.Service) endpoint.Endpoint {
+func MakeReadActionsEndpoint(s pb.AmbitionServiceServer) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(*pb.ReadActionsRequest)
 		v, err := s.ReadActions(ctx, req)
@@ -91,9 +90,9 @@ func MakeReadActionsEndpoint(s handler.Service) endpoint.Endpoint {
 	}
 }
 
-func MakeReadActionEndpoint(s handler.Service) endpoint.Endpoint {
+func MakeReadActionEndpoint(s pb.AmbitionServiceServer) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		req := request.(*pb.ReadActionRequest)
+		req := request.(*pb.Action)
 		v, err := s.ReadAction(ctx, req)
 		if err != nil {
 			return nil, err
@@ -102,9 +101,9 @@ func MakeReadActionEndpoint(s handler.Service) endpoint.Endpoint {
 	}
 }
 
-func MakeCreateActionEndpoint(s handler.Service) endpoint.Endpoint {
+func MakeCreateActionEndpoint(s pb.AmbitionServiceServer) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		req := request.(*pb.CreateActionRequest)
+		req := request.(*pb.Action)
 		v, err := s.CreateAction(ctx, req)
 		if err != nil {
 			return nil, err
@@ -113,9 +112,9 @@ func MakeCreateActionEndpoint(s handler.Service) endpoint.Endpoint {
 	}
 }
 
-func MakeReadOccurrencesEndpoint(s handler.Service) endpoint.Endpoint {
+func MakeReadOccurrencesEndpoint(s pb.AmbitionServiceServer) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		req := request.(*pb.ReadOccurrencesRequest)
+		req := request.(*pb.Occurrence)
 		v, err := s.ReadOccurrences(ctx, req)
 		if err != nil {
 			return nil, err
@@ -124,9 +123,9 @@ func MakeReadOccurrencesEndpoint(s handler.Service) endpoint.Endpoint {
 	}
 }
 
-func MakeCreateOccurrenceEndpoint(s handler.Service) endpoint.Endpoint {
+func MakeCreateOccurrenceEndpoint(s pb.AmbitionServiceServer) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		req := request.(*pb.CreateOccurrenceRequest)
+		req := request.(*pb.Occurrence)
 		v, err := s.CreateOccurrence(ctx, req)
 		if err != nil {
 			return nil, err

@@ -12,8 +12,8 @@ import (
 	"golang.org/x/net/context"
 
 	// This Service
+	pb "github.com/adamryman/ambition-model/ambition-service"
 	svc "github.com/adamryman/ambition-model/ambition-service/generated"
-	handler "github.com/adamryman/ambition-model/ambition-service/handlers/server"
 )
 
 var (
@@ -24,7 +24,7 @@ var (
 // New returns a service backed by an HTTP server living at the remote
 // instance. We expect instance to come from a service discovery system, so
 // likely of the form "host:port".
-func New(instance string, options ...ClientOption) (handler.Service, error) {
+func New(instance string, options ...ClientOption) (pb.AmbitionServiceServer, error) {
 	var cc clientConfig
 
 	for _, f := range options {

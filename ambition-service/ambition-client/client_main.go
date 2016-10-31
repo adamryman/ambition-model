@@ -19,7 +19,6 @@ import (
 	grpcclient "github.com/adamryman/ambition-model/ambition-service/generated/client/grpc"
 	httpclient "github.com/adamryman/ambition-model/ambition-service/generated/client/http"
 	clientHandler "github.com/adamryman/ambition-model/ambition-service/handlers/client"
-	handler "github.com/adamryman/ambition-model/ambition-service/handlers/server"
 )
 
 var (
@@ -43,21 +42,28 @@ func main() {
 	)
 
 	var (
-		flagUserIdReadActions        = flag.Int64("readactions.userid", 0, "")
-		flagActionIdReadAction       = flag.Int64("readaction.actionid", 0, "")
-		flagActionNameReadAction     = flag.String("readaction.actionname", "", "")
-		flagUserIdCreateAction       = flag.Int64("createaction.userid", 0, "")
-		flagActionNameCreateAction   = flag.String("createaction.actionname", "", "")
-		flagUserIdReadOccurrences    = flag.Int64("readoccurrences.userid", 0, "")
-		flagActionIdReadOccurrences  = flag.Int64("readoccurrences.actionid", 0, "")
-		flagActionIdCreateOccurrence = flag.Int64("createoccurrence.actionid", 0, "")
-		flagDatetimeCreateOccurrence = flag.String("createoccurrence.datetime", "", "")
-		flagDataCreateOccurrence     = flag.String("createoccurrence.data", "", "")
+		flagUserIdReadActions            = flag.Int64("readactions.userid", 0, "")
+		flagActionIdReadAction           = flag.Int64("readaction.actionid", 0, "")
+		flagUserIdReadAction             = flag.Int64("readaction.userid", 0, "")
+		flagActionNameReadAction         = flag.String("readaction.actionname", "", "")
+		flagTrelloIdReadAction           = flag.String("readaction.trelloid", "", "")
+		flagActionIdCreateAction         = flag.Int64("createaction.actionid", 0, "")
+		flagUserIdCreateAction           = flag.Int64("createaction.userid", 0, "")
+		flagActionNameCreateAction       = flag.String("createaction.actionname", "", "")
+		flagTrelloIdCreateAction         = flag.String("createaction.trelloid", "", "")
+		flagOccurrenceIdReadOccurrences  = flag.Int64("readoccurrences.occurrenceid", 0, "")
+		flagActionIdReadOccurrences      = flag.Int64("readoccurrences.actionid", 0, "")
+		flagDatetimeReadOccurrences      = flag.String("readoccurrences.datetime", "", "")
+		flagDataReadOccurrences          = flag.String("readoccurrences.data", "", "")
+		flagOccurrenceIdCreateOccurrence = flag.Int64("createoccurrence.occurrenceid", 0, "")
+		flagActionIdCreateOccurrence     = flag.Int64("createoccurrence.actionid", 0, "")
+		flagDatetimeCreateOccurrence     = flag.String("createoccurrence.datetime", "", "")
+		flagDataCreateOccurrence         = flag.String("createoccurrence.data", "", "")
 	)
 	flag.Parse()
 
 	var (
-		service handler.Service
+		service pb.AmbitionServiceServer
 		err     error
 	)
 	if *httpAddr != "" {
@@ -102,8 +108,10 @@ func main() {
 	case "readaction":
 		var err error
 		ActionIdReadAction := *flagActionIdReadAction
+		UserIdReadAction := *flagUserIdReadAction
 		ActionNameReadAction := *flagActionNameReadAction
-		request, err := clientHandler.ReadAction(ActionIdReadAction, ActionNameReadAction)
+		TrelloIdReadAction := *flagTrelloIdReadAction
+		request, err := clientHandler.ReadAction(ActionIdReadAction, UserIdReadAction, ActionNameReadAction, TrelloIdReadAction)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error calling clientHandler.ReadAction: %v\n", err)
 			os.Exit(1)
@@ -115,14 +123,16 @@ func main() {
 			os.Exit(1)
 		}
 		fmt.Println("Client Requested with:")
-		fmt.Println(ActionIdReadAction, ActionNameReadAction)
+		fmt.Println(ActionIdReadAction, UserIdReadAction, ActionNameReadAction, TrelloIdReadAction)
 		fmt.Println("Server Responded with:")
 		fmt.Println(v)
 	case "createaction":
 		var err error
+		ActionIdCreateAction := *flagActionIdCreateAction
 		UserIdCreateAction := *flagUserIdCreateAction
 		ActionNameCreateAction := *flagActionNameCreateAction
-		request, err := clientHandler.CreateAction(UserIdCreateAction, ActionNameCreateAction)
+		TrelloIdCreateAction := *flagTrelloIdCreateAction
+		request, err := clientHandler.CreateAction(ActionIdCreateAction, UserIdCreateAction, ActionNameCreateAction, TrelloIdCreateAction)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error calling clientHandler.CreateAction: %v\n", err)
 			os.Exit(1)
@@ -134,14 +144,16 @@ func main() {
 			os.Exit(1)
 		}
 		fmt.Println("Client Requested with:")
-		fmt.Println(UserIdCreateAction, ActionNameCreateAction)
+		fmt.Println(ActionIdCreateAction, UserIdCreateAction, ActionNameCreateAction, TrelloIdCreateAction)
 		fmt.Println("Server Responded with:")
 		fmt.Println(v)
 	case "readoccurrences":
 		var err error
-		UserIdReadOccurrences := *flagUserIdReadOccurrences
+		OccurrenceIdReadOccurrences := *flagOccurrenceIdReadOccurrences
 		ActionIdReadOccurrences := *flagActionIdReadOccurrences
-		request, err := clientHandler.ReadOccurrences(UserIdReadOccurrences, ActionIdReadOccurrences)
+		DatetimeReadOccurrences := *flagDatetimeReadOccurrences
+		DataReadOccurrences := *flagDataReadOccurrences
+		request, err := clientHandler.ReadOccurrences(OccurrenceIdReadOccurrences, ActionIdReadOccurrences, DatetimeReadOccurrences, DataReadOccurrences)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error calling clientHandler.ReadOccurrences: %v\n", err)
 			os.Exit(1)
@@ -153,15 +165,16 @@ func main() {
 			os.Exit(1)
 		}
 		fmt.Println("Client Requested with:")
-		fmt.Println(UserIdReadOccurrences, ActionIdReadOccurrences)
+		fmt.Println(OccurrenceIdReadOccurrences, ActionIdReadOccurrences, DatetimeReadOccurrences, DataReadOccurrences)
 		fmt.Println("Server Responded with:")
 		fmt.Println(v)
 	case "createoccurrence":
 		var err error
+		OccurrenceIdCreateOccurrence := *flagOccurrenceIdCreateOccurrence
 		ActionIdCreateOccurrence := *flagActionIdCreateOccurrence
 		DatetimeCreateOccurrence := *flagDatetimeCreateOccurrence
 		DataCreateOccurrence := *flagDataCreateOccurrence
-		request, err := clientHandler.CreateOccurrence(ActionIdCreateOccurrence, DatetimeCreateOccurrence, DataCreateOccurrence)
+		request, err := clientHandler.CreateOccurrence(OccurrenceIdCreateOccurrence, ActionIdCreateOccurrence, DatetimeCreateOccurrence, DataCreateOccurrence)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error calling clientHandler.CreateOccurrence: %v\n", err)
 			os.Exit(1)
@@ -173,7 +186,7 @@ func main() {
 			os.Exit(1)
 		}
 		fmt.Println("Client Requested with:")
-		fmt.Println(ActionIdCreateOccurrence, DatetimeCreateOccurrence, DataCreateOccurrence)
+		fmt.Println(OccurrenceIdCreateOccurrence, ActionIdCreateOccurrence, DatetimeCreateOccurrence, DataCreateOccurrence)
 		fmt.Println("Server Responded with:")
 		fmt.Println(v)
 	default:

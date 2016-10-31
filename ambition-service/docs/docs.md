@@ -87,15 +87,6 @@ th:nth-child(4) {
 
 ### Messages
 
-<a name="CreateActionRequest"></a>
-
-#### CreateActionRequest
-
-| Name | Type | Field Number | Description|
-| ---- | ---- | ------------ | -----------|
-| UserId | TYPE_INT64 | 1 |  |
-| ActionName | TYPE_STRING | 2 |  |
-
 <a name="ReadActionsRequest"></a>
 
 #### ReadActionsRequest
@@ -103,15 +94,6 @@ th:nth-child(4) {
 | Name | Type | Field Number | Description|
 | ---- | ---- | ------------ | -----------|
 | UserId | TYPE_INT64 | 1 |  |
-
-<a name="ReadActionRequest"></a>
-
-#### ReadActionRequest
-
-| Name | Type | Field Number | Description|
-| ---- | ---- | ------------ | -----------|
-| ActionId | TYPE_INT64 | 1 |  |
-| ActionName | TYPE_STRING | 2 |  |
 
 <a name="ActionResponse"></a>
 
@@ -140,6 +122,7 @@ th:nth-child(4) {
 | ActionId | TYPE_INT64 | 1 |  |
 | UserId | TYPE_INT64 | 2 |  |
 | ActionName | TYPE_STRING | 3 |  |
+| TrelloId | TYPE_STRING | 4 |  |
 
 <a name="CreateOccurrenceRequest"></a>
 
@@ -204,10 +187,10 @@ th:nth-child(4) {
 | Method Name | Request Type | Response Type | Description|
 | ---- | ---- | ------------ | -----------|
 | ReadActions | ReadActionsRequest | ActionsResponse |  |
-| ReadAction | ReadActionRequest | ActionResponse |  |
-| CreateAction | CreateActionRequest | ActionResponse |  |
-| ReadOccurrences | ReadOccurrencesRequest | OccurrenceResponse |  |
-| CreateOccurrence | CreateOccurrenceRequest | OccurrenceResponse |  |
+| ReadAction | Action | ActionResponse |  |
+| CreateAction | Action | ActionResponse |  |
+| ReadOccurrences | Occurrence | OccurrenceResponse |  |
+| CreateOccurrence | Occurrence | OccurrenceResponse |  |
 
 #### AmbitionService - Http Methods
 
