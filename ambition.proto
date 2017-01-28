@@ -5,18 +5,27 @@ package ambition;
 import "github.com/TuneLab/go-truss/deftree/googlethirdparty/annotations.proto";
 
 service Ambition {
+  // CreateAction requires a UserID and a Name
   rpc CreateAction(Action) returns (Action) {}
 
+  // CreateOccurrence requires a UserID and Occurrence.ActionID
+  // TODO: If Datetime is provided it will be used
+  // TODO: If Data is provided it will be stored
   rpc
   CreateOccurrence(CreateOccurrenceRequest) returns (Occurrence) {}
 
+  // ReadAction requires either an ID, or BOTH a UserId and Name
+  rpc ReadAction(Action) returns (Action) {}
+
+  // ReadAction
+  // TODO:
   rpc ReadActions(User) returns (ActionsResponse) {}
 
   // ReadOccurrences takes an action which must be populated with a
   // UserID and an ActionID which must match the values for that action
-  /*rpc ReadOccurrences(Action) returns (OccurrencesResponse) {}*/
+  // TODO:
+  rpc ReadOccurrences(Action) returns (OccurrencesResponse) {}
 
-  rpc ReadAction(Action) returns (Action) {}
 
 }
 
@@ -24,7 +33,7 @@ service Ambition {
 message Action {
   int64 ID= 1;
   int64 UserID= 2;
-  string ActionName = 3;
+  string Name = 3;
   // string TrelloID= 4;
 }
 
