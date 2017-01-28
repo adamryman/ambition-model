@@ -30,14 +30,13 @@ var (
 	_ = strconv.Atoi
 	_ = httptransport.NewServer
 	_ = ioutil.NopCloser
-	_ = pb.RegisterAmbitionServiceServer
+	_ = pb.RegisterAmbitionServer
 	_ = io.Copy
 )
 
 // MakeHTTPHandler returns a handler that makes a set of endpoints available
 // on predefined paths.
 func MakeHTTPHandler(ctx context.Context, endpoints Endpoints, logger log.Logger) http.Handler {
-
 	m := http.NewServeMux()
 
 	return m
@@ -98,6 +97,12 @@ func EncodeHTTPGenericResponse(_ context.Context, w http.ResponseWriter, respons
 func PathParams(url string, urlTmpl string) (map[string]string, error) {
 	rv := map[string]string{}
 	pmp := BuildParamMap(urlTmpl)
+
+	expectedLen := len(strings.Split(strings.TrimRight(urlTmpl, "/"), "/"))
+	recievedLen := len(strings.Split(strings.TrimRight(url, "/"), "/"))
+	if expectedLen != recievedLen {
+		return nil, fmt.Errorf("Expected a path containing %d parts, provided path contains %d parts", expectedLen, recievedLen)
+	}
 
 	parts := strings.Split(url, "/")
 	for k, v := range pmp {

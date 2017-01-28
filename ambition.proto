@@ -2,74 +2,58 @@ syntax = "proto3";
 
 package ambition;
 
-import "google/api/annotations.proto";
+import "github.com/TuneLab/go-truss/deftree/googlethirdparty/annotations.proto";
 
-service AmbitionService {
-  rpc ReadActions(ReadActionsRequest) returns (ActionsResponse) {}
+service Ambition {
+  rpc CreateAction(Action) returns (Action) {}
 
-  rpc ReadAction(Action) returns (ActionResponse) {}
+  rpc
+  CreateOccurrence(CreateOccurrenceRequest) returns (Occurrence) {}
 
-  rpc CreateAction(Action) returns (ActionResponse) {}
+  rpc ReadActions(User) returns (ActionsResponse) {}
 
-  rpc ReadOccurrences(Occurrence) returns (OccurrenceResponse) {}
+  // ReadOccurrences takes an action which must be populated with a
+  // UserID and an ActionID which must match the values for that action
+  /*rpc ReadOccurrences(Action) returns (OccurrencesResponse) {}*/
 
-  rpc CreateOccurrence(Occurrence) returns (OccurrenceResponse) {}
+  rpc ReadAction(Action) returns (Action) {}
+
 }
 
-/*message CreateActionRequest {*/
-  /*Action Action = 1;*/
-/*}*/
-
-message ReadActionsRequest {
-  int64 UserId = 1;
-}
-
-message ActionResponse {
-  Action Action = 1;
-  string Error = 2;
-}
-
-message ActionsResponse {
-  repeated Action Actions = 1;
-  string Error = 4;
-}
 
 message Action {
-  int64 ActionId = 1;
-  int64 UserId = 2;
+  int64 ID= 1;
+  int64 UserID= 2;
   string ActionName = 3;
-  string TrelloId = 4;
+  // string TrelloID= 4;
 }
 
 message CreateOccurrenceRequest {
-  int64 ActionId = 1;
-  string Datetime = 2;
-  string Data = 3;
+  int64 UserID = 1;
+  Occurrence Occurrence = 2;
 }
 
-message ReadOccurrencesRequest {
-  int64 UserId = 1;
-  int64 ActionId = 2;
+message Occurrence {
+  int64 ID = 1;
+  int64 ActionID = 2;
+  string Datetime = 3;
+  string Data = 4;
 }
 
-message ReadOccurrenceRequest {
-  int64 OccurrenceId = 1;
+message User {
+  int64 UserID= 1;
 }
 
-message OccurrenceResponse {
-  Occurrence Occurrence = 1;
-  string Error = 2;
+/*message ActionResponse {*/
+  /*Action Action = 1;*/
+  /*string Error = 2;*/
+/*}*/
+
+message ActionsResponse {
+  repeated Action Actions = 1;
 }
 
 message OccurrencesResponse {
   repeated Occurrence Occurrences = 1;
-  string Error = 2;
-}
-
-message Occurrence {
-  int64 OccurrenceId = 1;
-  int64 ActionId = 2;
-  string Datetime = 3;
-  string Data = 4;
 }
 

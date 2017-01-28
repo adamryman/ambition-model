@@ -87,22 +87,43 @@ th:nth-child(4) {
 
 ### Messages
 
-<a name="ReadActionsRequest"></a>
+<a name="Action"></a>
 
-#### ReadActionsRequest
-
-| Name | Type | Field Number | Description|
-| ---- | ---- | ------------ | -----------|
-| UserId | TYPE_INT64 | 1 |  |
-
-<a name="ActionResponse"></a>
-
-#### ActionResponse
+#### Action
 
 | Name | Type | Field Number | Description|
 | ---- | ---- | ------------ | -----------|
-| Action | [Action](#Action) | 1 |  |
-| Error | TYPE_STRING | 2 |  |
+| ID | TYPE_INT64 | 1 |  |
+| UserID | TYPE_INT64 | 2 |  |
+| ActionName | TYPE_STRING | 3 |  |
+
+<a name="CreateOccurrenceRequest"></a>
+
+#### CreateOccurrenceRequest
+
+| Name | Type | Field Number | Description|
+| ---- | ---- | ------------ | -----------|
+| UserID | TYPE_INT64 | 1 |  |
+| Occurrence | [Occurrence](#Occurrence) | 2 |  |
+
+<a name="Occurrence"></a>
+
+#### Occurrence
+
+| Name | Type | Field Number | Description|
+| ---- | ---- | ------------ | -----------|
+| ID | TYPE_INT64 | 1 |  |
+| ActionID | TYPE_INT64 | 2 |  |
+| Datetime | TYPE_STRING | 3 |  |
+| Data | TYPE_STRING | 4 |  |
+
+<a name="User"></a>
+
+#### User
+
+| Name | Type | Field Number | Description|
+| ---- | ---- | ------------ | -----------|
+| UserID | TYPE_INT64 | 1 |  |
 
 <a name="ActionsResponse"></a>
 
@@ -111,54 +132,6 @@ th:nth-child(4) {
 | Name | Type | Field Number | Description|
 | ---- | ---- | ------------ | -----------|
 | Actions | [Action](#Action) | 1 |  |
-| Error | TYPE_STRING | 4 |  |
-
-<a name="Action"></a>
-
-#### Action
-
-| Name | Type | Field Number | Description|
-| ---- | ---- | ------------ | -----------|
-| ActionId | TYPE_INT64 | 1 |  |
-| UserId | TYPE_INT64 | 2 |  |
-| ActionName | TYPE_STRING | 3 |  |
-| TrelloId | TYPE_STRING | 4 |  |
-
-<a name="CreateOccurrenceRequest"></a>
-
-#### CreateOccurrenceRequest
-
-| Name | Type | Field Number | Description|
-| ---- | ---- | ------------ | -----------|
-| ActionId | TYPE_INT64 | 1 |  |
-| Datetime | TYPE_STRING | 2 |  |
-| Data | TYPE_STRING | 3 |  |
-
-<a name="ReadOccurrencesRequest"></a>
-
-#### ReadOccurrencesRequest
-
-| Name | Type | Field Number | Description|
-| ---- | ---- | ------------ | -----------|
-| UserId | TYPE_INT64 | 1 |  |
-| ActionId | TYPE_INT64 | 2 |  |
-
-<a name="ReadOccurrenceRequest"></a>
-
-#### ReadOccurrenceRequest
-
-| Name | Type | Field Number | Description|
-| ---- | ---- | ------------ | -----------|
-| OccurrenceId | TYPE_INT64 | 1 |  |
-
-<a name="OccurrenceResponse"></a>
-
-#### OccurrenceResponse
-
-| Name | Type | Field Number | Description|
-| ---- | ---- | ------------ | -----------|
-| Occurrence | [Occurrence](#Occurrence) | 1 |  |
-| Error | TYPE_STRING | 2 |  |
 
 <a name="OccurrencesResponse"></a>
 
@@ -167,30 +140,17 @@ th:nth-child(4) {
 | Name | Type | Field Number | Description|
 | ---- | ---- | ------------ | -----------|
 | Occurrences | [Occurrence](#Occurrence) | 1 |  |
-| Error | TYPE_STRING | 2 |  |
-
-<a name="Occurrence"></a>
-
-#### Occurrence
-
-| Name | Type | Field Number | Description|
-| ---- | ---- | ------------ | -----------|
-| OccurrenceId | TYPE_INT64 | 1 |  |
-| ActionId | TYPE_INT64 | 2 |  |
-| Datetime | TYPE_STRING | 3 |  |
-| Data | TYPE_STRING | 4 |  |
 
 ### Services
 
-#### AmbitionService
+#### Ambition
 
 | Method Name | Request Type | Response Type | Description|
 | ---- | ---- | ------------ | -----------|
-| ReadActions | ReadActionsRequest | ActionsResponse |  |
-| ReadAction | Action | ActionResponse |  |
-| CreateAction | Action | ActionResponse |  |
-| ReadOccurrences | Occurrence | OccurrenceResponse |  |
-| CreateOccurrence | Occurrence | OccurrenceResponse |  |
+| CreateAction | Action | Action |  |
+| CreateOccurrence | CreateOccurrenceRequest | Occurrence |  |
+| ReadActions | User | ActionsResponse |  |
+| ReadAction | Action | Action |  |
 
-#### AmbitionService - Http Methods
+#### Ambition - Http Methods
 

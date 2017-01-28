@@ -1,4 +1,4 @@
-// Package grpc provides a gRPC client for the AmbitionService service.
+// Package grpc provides a gRPC client for the Ambition service.
 package grpc
 
 import (
@@ -17,7 +17,7 @@ import (
 
 // New returns an service backed by a gRPC client connection. It is the
 // responsibility of the caller to dial, and later close, the connection.
-func New(conn *grpc.ClientConn, options ...ClientOption) (pb.AmbitionServiceServer, error) {
+func New(conn *grpc.ClientConn, options ...ClientOption) (pb.AmbitionServer, error) {
 	var cc clientConfig
 
 	for _, f := range options {
@@ -31,11 +31,37 @@ func New(conn *grpc.ClientConn, options ...ClientOption) (pb.AmbitionServiceServ
 		grpctransport.ClientBefore(
 			contextValuesToGRPCMetadata(cc.headers)),
 	}
+	var createactionEndpoint endpoint.Endpoint
+	{
+		createactionEndpoint = grpctransport.NewClient(
+			conn,
+			"ambition.Ambition",
+			"CreateAction",
+			svc.EncodeGRPCCreateActionRequest,
+			svc.DecodeGRPCCreateActionResponse,
+			pb.Action{},
+			clientOptions...,
+		).Endpoint()
+	}
+
+	var createoccurrenceEndpoint endpoint.Endpoint
+	{
+		createoccurrenceEndpoint = grpctransport.NewClient(
+			conn,
+			"ambition.Ambition",
+			"CreateOccurrence",
+			svc.EncodeGRPCCreateOccurrenceRequest,
+			svc.DecodeGRPCCreateOccurrenceResponse,
+			pb.Occurrence{},
+			clientOptions...,
+		).Endpoint()
+	}
+
 	var readactionsEndpoint endpoint.Endpoint
 	{
 		readactionsEndpoint = grpctransport.NewClient(
 			conn,
-			"ambition.AmbitionService",
+			"ambition.Ambition",
 			"ReadActions",
 			svc.EncodeGRPCReadActionsRequest,
 			svc.DecodeGRPCReadActionsResponse,
@@ -48,60 +74,20 @@ func New(conn *grpc.ClientConn, options ...ClientOption) (pb.AmbitionServiceServ
 	{
 		readactionEndpoint = grpctransport.NewClient(
 			conn,
-			"ambition.AmbitionService",
+			"ambition.Ambition",
 			"ReadAction",
 			svc.EncodeGRPCReadActionRequest,
 			svc.DecodeGRPCReadActionResponse,
-			pb.ActionResponse{},
-			clientOptions...,
-		).Endpoint()
-	}
-
-	var createactionEndpoint endpoint.Endpoint
-	{
-		createactionEndpoint = grpctransport.NewClient(
-			conn,
-			"ambition.AmbitionService",
-			"CreateAction",
-			svc.EncodeGRPCCreateActionRequest,
-			svc.DecodeGRPCCreateActionResponse,
-			pb.ActionResponse{},
-			clientOptions...,
-		).Endpoint()
-	}
-
-	var readoccurrencesEndpoint endpoint.Endpoint
-	{
-		readoccurrencesEndpoint = grpctransport.NewClient(
-			conn,
-			"ambition.AmbitionService",
-			"ReadOccurrences",
-			svc.EncodeGRPCReadOccurrencesRequest,
-			svc.DecodeGRPCReadOccurrencesResponse,
-			pb.OccurrenceResponse{},
-			clientOptions...,
-		).Endpoint()
-	}
-
-	var createoccurrenceEndpoint endpoint.Endpoint
-	{
-		createoccurrenceEndpoint = grpctransport.NewClient(
-			conn,
-			"ambition.AmbitionService",
-			"CreateOccurrence",
-			svc.EncodeGRPCCreateOccurrenceRequest,
-			svc.DecodeGRPCCreateOccurrenceResponse,
-			pb.OccurrenceResponse{},
+			pb.Action{},
 			clientOptions...,
 		).Endpoint()
 	}
 
 	return svc.Endpoints{
+		CreateActionEndpoint:     createactionEndpoint,
+		CreateOccurrenceEndpoint: createoccurrenceEndpoint,
 		ReadActionsEndpoint:      readactionsEndpoint,
 		ReadActionEndpoint:       readactionEndpoint,
-		CreateActionEndpoint:     createactionEndpoint,
-		ReadOccurrencesEndpoint:  readoccurrencesEndpoint,
-		CreateOccurrenceEndpoint: createoccurrenceEndpoint,
 	}, nil
 }
 

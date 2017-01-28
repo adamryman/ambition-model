@@ -9,23 +9,19 @@ It is generated from these files:
 	ambition.proto
 
 It has these top-level messages:
-	ReadActionsRequest
-	ActionResponse
-	ActionsResponse
 	Action
 	CreateOccurrenceRequest
-	ReadOccurrencesRequest
-	ReadOccurrenceRequest
-	OccurrenceResponse
-	OccurrencesResponse
 	Occurrence
+	User
+	ActionsResponse
+	OccurrencesResponse
 */
 package ambition
 
 import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"
 import math "math"
-import _ "github.com/adamryman/ambition-model/ambition-service/third_party/googleapis/google/api"
+import _ "github.com/TuneLab/go-truss/deftree/googlethirdparty"
 
 import (
 	context "golang.org/x/net/context"
@@ -43,41 +39,126 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
-type ReadActionsRequest struct {
-	UserId int64 `protobuf:"varint,1,opt,name=UserId" json:"UserId,omitempty"`
+type Action struct {
+	ID         int64  `protobuf:"varint,1,opt,name=ID" json:"ID,omitempty"`
+	UserID     int64  `protobuf:"varint,2,opt,name=UserID" json:"UserID,omitempty"`
+	ActionName string `protobuf:"bytes,3,opt,name=ActionName" json:"ActionName,omitempty"`
 }
 
-func (m *ReadActionsRequest) Reset()                    { *m = ReadActionsRequest{} }
-func (m *ReadActionsRequest) String() string            { return proto.CompactTextString(m) }
-func (*ReadActionsRequest) ProtoMessage()               {}
-func (*ReadActionsRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
+func (m *Action) Reset()                    { *m = Action{} }
+func (m *Action) String() string            { return proto.CompactTextString(m) }
+func (*Action) ProtoMessage()               {}
+func (*Action) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
 
-type ActionResponse struct {
-	Action *Action `protobuf:"bytes,1,opt,name=Action" json:"Action,omitempty"`
-	Error  string  `protobuf:"bytes,2,opt,name=Error" json:"Error,omitempty"`
-}
-
-func (m *ActionResponse) Reset()                    { *m = ActionResponse{} }
-func (m *ActionResponse) String() string            { return proto.CompactTextString(m) }
-func (*ActionResponse) ProtoMessage()               {}
-func (*ActionResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
-
-func (m *ActionResponse) GetAction() *Action {
+func (m *Action) GetID() int64 {
 	if m != nil {
-		return m.Action
+		return m.ID
+	}
+	return 0
+}
+
+func (m *Action) GetUserID() int64 {
+	if m != nil {
+		return m.UserID
+	}
+	return 0
+}
+
+func (m *Action) GetActionName() string {
+	if m != nil {
+		return m.ActionName
+	}
+	return ""
+}
+
+type CreateOccurrenceRequest struct {
+	UserID     int64       `protobuf:"varint,1,opt,name=UserID" json:"UserID,omitempty"`
+	Occurrence *Occurrence `protobuf:"bytes,2,opt,name=Occurrence" json:"Occurrence,omitempty"`
+}
+
+func (m *CreateOccurrenceRequest) Reset()                    { *m = CreateOccurrenceRequest{} }
+func (m *CreateOccurrenceRequest) String() string            { return proto.CompactTextString(m) }
+func (*CreateOccurrenceRequest) ProtoMessage()               {}
+func (*CreateOccurrenceRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
+
+func (m *CreateOccurrenceRequest) GetUserID() int64 {
+	if m != nil {
+		return m.UserID
+	}
+	return 0
+}
+
+func (m *CreateOccurrenceRequest) GetOccurrence() *Occurrence {
+	if m != nil {
+		return m.Occurrence
 	}
 	return nil
 }
 
+type Occurrence struct {
+	ID       int64  `protobuf:"varint,1,opt,name=ID" json:"ID,omitempty"`
+	ActionID int64  `protobuf:"varint,2,opt,name=ActionID" json:"ActionID,omitempty"`
+	Datetime string `protobuf:"bytes,3,opt,name=Datetime" json:"Datetime,omitempty"`
+	Data     string `protobuf:"bytes,4,opt,name=Data" json:"Data,omitempty"`
+}
+
+func (m *Occurrence) Reset()                    { *m = Occurrence{} }
+func (m *Occurrence) String() string            { return proto.CompactTextString(m) }
+func (*Occurrence) ProtoMessage()               {}
+func (*Occurrence) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
+
+func (m *Occurrence) GetID() int64 {
+	if m != nil {
+		return m.ID
+	}
+	return 0
+}
+
+func (m *Occurrence) GetActionID() int64 {
+	if m != nil {
+		return m.ActionID
+	}
+	return 0
+}
+
+func (m *Occurrence) GetDatetime() string {
+	if m != nil {
+		return m.Datetime
+	}
+	return ""
+}
+
+func (m *Occurrence) GetData() string {
+	if m != nil {
+		return m.Data
+	}
+	return ""
+}
+
+type User struct {
+	UserID int64 `protobuf:"varint,1,opt,name=UserID" json:"UserID,omitempty"`
+}
+
+func (m *User) Reset()                    { *m = User{} }
+func (m *User) String() string            { return proto.CompactTextString(m) }
+func (*User) ProtoMessage()               {}
+func (*User) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
+
+func (m *User) GetUserID() int64 {
+	if m != nil {
+		return m.UserID
+	}
+	return 0
+}
+
 type ActionsResponse struct {
 	Actions []*Action `protobuf:"bytes,1,rep,name=Actions" json:"Actions,omitempty"`
-	Error   string    `protobuf:"bytes,4,opt,name=Error" json:"Error,omitempty"`
 }
 
 func (m *ActionsResponse) Reset()                    { *m = ActionsResponse{} }
 func (m *ActionsResponse) String() string            { return proto.CompactTextString(m) }
 func (*ActionsResponse) ProtoMessage()               {}
-func (*ActionsResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
+func (*ActionsResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{4} }
 
 func (m *ActionsResponse) GetActions() []*Action {
 	if m != nil {
@@ -86,74 +167,14 @@ func (m *ActionsResponse) GetActions() []*Action {
 	return nil
 }
 
-type Action struct {
-	ActionId   int64  `protobuf:"varint,1,opt,name=ActionId" json:"ActionId,omitempty"`
-	UserId     int64  `protobuf:"varint,2,opt,name=UserId" json:"UserId,omitempty"`
-	ActionName string `protobuf:"bytes,3,opt,name=ActionName" json:"ActionName,omitempty"`
-	TrelloId   string `protobuf:"bytes,4,opt,name=TrelloId" json:"TrelloId,omitempty"`
-}
-
-func (m *Action) Reset()                    { *m = Action{} }
-func (m *Action) String() string            { return proto.CompactTextString(m) }
-func (*Action) ProtoMessage()               {}
-func (*Action) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
-
-type CreateOccurrenceRequest struct {
-	ActionId int64  `protobuf:"varint,1,opt,name=ActionId" json:"ActionId,omitempty"`
-	Datetime string `protobuf:"bytes,2,opt,name=Datetime" json:"Datetime,omitempty"`
-	Data     string `protobuf:"bytes,3,opt,name=Data" json:"Data,omitempty"`
-}
-
-func (m *CreateOccurrenceRequest) Reset()                    { *m = CreateOccurrenceRequest{} }
-func (m *CreateOccurrenceRequest) String() string            { return proto.CompactTextString(m) }
-func (*CreateOccurrenceRequest) ProtoMessage()               {}
-func (*CreateOccurrenceRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{4} }
-
-type ReadOccurrencesRequest struct {
-	UserId   int64 `protobuf:"varint,1,opt,name=UserId" json:"UserId,omitempty"`
-	ActionId int64 `protobuf:"varint,2,opt,name=ActionId" json:"ActionId,omitempty"`
-}
-
-func (m *ReadOccurrencesRequest) Reset()                    { *m = ReadOccurrencesRequest{} }
-func (m *ReadOccurrencesRequest) String() string            { return proto.CompactTextString(m) }
-func (*ReadOccurrencesRequest) ProtoMessage()               {}
-func (*ReadOccurrencesRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{5} }
-
-type ReadOccurrenceRequest struct {
-	OccurrenceId int64 `protobuf:"varint,1,opt,name=OccurrenceId" json:"OccurrenceId,omitempty"`
-}
-
-func (m *ReadOccurrenceRequest) Reset()                    { *m = ReadOccurrenceRequest{} }
-func (m *ReadOccurrenceRequest) String() string            { return proto.CompactTextString(m) }
-func (*ReadOccurrenceRequest) ProtoMessage()               {}
-func (*ReadOccurrenceRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{6} }
-
-type OccurrenceResponse struct {
-	Occurrence *Occurrence `protobuf:"bytes,1,opt,name=Occurrence" json:"Occurrence,omitempty"`
-	Error      string      `protobuf:"bytes,2,opt,name=Error" json:"Error,omitempty"`
-}
-
-func (m *OccurrenceResponse) Reset()                    { *m = OccurrenceResponse{} }
-func (m *OccurrenceResponse) String() string            { return proto.CompactTextString(m) }
-func (*OccurrenceResponse) ProtoMessage()               {}
-func (*OccurrenceResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{7} }
-
-func (m *OccurrenceResponse) GetOccurrence() *Occurrence {
-	if m != nil {
-		return m.Occurrence
-	}
-	return nil
-}
-
 type OccurrencesResponse struct {
 	Occurrences []*Occurrence `protobuf:"bytes,1,rep,name=Occurrences" json:"Occurrences,omitempty"`
-	Error       string        `protobuf:"bytes,2,opt,name=Error" json:"Error,omitempty"`
 }
 
 func (m *OccurrencesResponse) Reset()                    { *m = OccurrencesResponse{} }
 func (m *OccurrencesResponse) String() string            { return proto.CompactTextString(m) }
 func (*OccurrencesResponse) ProtoMessage()               {}
-func (*OccurrencesResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{8} }
+func (*OccurrencesResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{5} }
 
 func (m *OccurrencesResponse) GetOccurrences() []*Occurrence {
 	if m != nil {
@@ -162,29 +183,13 @@ func (m *OccurrencesResponse) GetOccurrences() []*Occurrence {
 	return nil
 }
 
-type Occurrence struct {
-	OccurrenceId int64  `protobuf:"varint,1,opt,name=OccurrenceId" json:"OccurrenceId,omitempty"`
-	ActionId     int64  `protobuf:"varint,2,opt,name=ActionId" json:"ActionId,omitempty"`
-	Datetime     string `protobuf:"bytes,3,opt,name=Datetime" json:"Datetime,omitempty"`
-	Data         string `protobuf:"bytes,4,opt,name=Data" json:"Data,omitempty"`
-}
-
-func (m *Occurrence) Reset()                    { *m = Occurrence{} }
-func (m *Occurrence) String() string            { return proto.CompactTextString(m) }
-func (*Occurrence) ProtoMessage()               {}
-func (*Occurrence) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{9} }
-
 func init() {
-	proto.RegisterType((*ReadActionsRequest)(nil), "ambition.ReadActionsRequest")
-	proto.RegisterType((*ActionResponse)(nil), "ambition.ActionResponse")
-	proto.RegisterType((*ActionsResponse)(nil), "ambition.ActionsResponse")
 	proto.RegisterType((*Action)(nil), "ambition.Action")
 	proto.RegisterType((*CreateOccurrenceRequest)(nil), "ambition.CreateOccurrenceRequest")
-	proto.RegisterType((*ReadOccurrencesRequest)(nil), "ambition.ReadOccurrencesRequest")
-	proto.RegisterType((*ReadOccurrenceRequest)(nil), "ambition.ReadOccurrenceRequest")
-	proto.RegisterType((*OccurrenceResponse)(nil), "ambition.OccurrenceResponse")
-	proto.RegisterType((*OccurrencesResponse)(nil), "ambition.OccurrencesResponse")
 	proto.RegisterType((*Occurrence)(nil), "ambition.Occurrence")
+	proto.RegisterType((*User)(nil), "ambition.User")
+	proto.RegisterType((*ActionsResponse)(nil), "ambition.ActionsResponse")
+	proto.RegisterType((*OccurrencesResponse)(nil), "ambition.OccurrencesResponse")
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -193,234 +198,197 @@ var _ grpc.ClientConn
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion3
+const _ = grpc.SupportPackageIsVersion4
 
-// Client API for AmbitionService service
+// Client API for Ambition service
 
-type AmbitionServiceClient interface {
-	ReadActions(ctx context.Context, in *ReadActionsRequest, opts ...grpc.CallOption) (*ActionsResponse, error)
-	ReadAction(ctx context.Context, in *Action, opts ...grpc.CallOption) (*ActionResponse, error)
-	CreateAction(ctx context.Context, in *Action, opts ...grpc.CallOption) (*ActionResponse, error)
-	ReadOccurrences(ctx context.Context, in *Occurrence, opts ...grpc.CallOption) (*OccurrenceResponse, error)
-	CreateOccurrence(ctx context.Context, in *Occurrence, opts ...grpc.CallOption) (*OccurrenceResponse, error)
+type AmbitionClient interface {
+	CreateAction(ctx context.Context, in *Action, opts ...grpc.CallOption) (*Action, error)
+	CreateOccurrence(ctx context.Context, in *CreateOccurrenceRequest, opts ...grpc.CallOption) (*Occurrence, error)
+	ReadActions(ctx context.Context, in *User, opts ...grpc.CallOption) (*ActionsResponse, error)
+	ReadAction(ctx context.Context, in *Action, opts ...grpc.CallOption) (*Action, error)
 }
 
-type ambitionServiceClient struct {
+type ambitionClient struct {
 	cc *grpc.ClientConn
 }
 
-func NewAmbitionServiceClient(cc *grpc.ClientConn) AmbitionServiceClient {
-	return &ambitionServiceClient{cc}
+func NewAmbitionClient(cc *grpc.ClientConn) AmbitionClient {
+	return &ambitionClient{cc}
 }
 
-func (c *ambitionServiceClient) ReadActions(ctx context.Context, in *ReadActionsRequest, opts ...grpc.CallOption) (*ActionsResponse, error) {
+func (c *ambitionClient) CreateAction(ctx context.Context, in *Action, opts ...grpc.CallOption) (*Action, error) {
+	out := new(Action)
+	err := grpc.Invoke(ctx, "/ambition.Ambition/CreateAction", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *ambitionClient) CreateOccurrence(ctx context.Context, in *CreateOccurrenceRequest, opts ...grpc.CallOption) (*Occurrence, error) {
+	out := new(Occurrence)
+	err := grpc.Invoke(ctx, "/ambition.Ambition/CreateOccurrence", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *ambitionClient) ReadActions(ctx context.Context, in *User, opts ...grpc.CallOption) (*ActionsResponse, error) {
 	out := new(ActionsResponse)
-	err := grpc.Invoke(ctx, "/ambition.AmbitionService/ReadActions", in, out, c.cc, opts...)
+	err := grpc.Invoke(ctx, "/ambition.Ambition/ReadActions", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *ambitionServiceClient) ReadAction(ctx context.Context, in *Action, opts ...grpc.CallOption) (*ActionResponse, error) {
-	out := new(ActionResponse)
-	err := grpc.Invoke(ctx, "/ambition.AmbitionService/ReadAction", in, out, c.cc, opts...)
+func (c *ambitionClient) ReadAction(ctx context.Context, in *Action, opts ...grpc.CallOption) (*Action, error) {
+	out := new(Action)
+	err := grpc.Invoke(ctx, "/ambition.Ambition/ReadAction", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *ambitionServiceClient) CreateAction(ctx context.Context, in *Action, opts ...grpc.CallOption) (*ActionResponse, error) {
-	out := new(ActionResponse)
-	err := grpc.Invoke(ctx, "/ambition.AmbitionService/CreateAction", in, out, c.cc, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
+// Server API for Ambition service
+
+type AmbitionServer interface {
+	CreateAction(context.Context, *Action) (*Action, error)
+	CreateOccurrence(context.Context, *CreateOccurrenceRequest) (*Occurrence, error)
+	ReadActions(context.Context, *User) (*ActionsResponse, error)
+	ReadAction(context.Context, *Action) (*Action, error)
 }
 
-func (c *ambitionServiceClient) ReadOccurrences(ctx context.Context, in *Occurrence, opts ...grpc.CallOption) (*OccurrenceResponse, error) {
-	out := new(OccurrenceResponse)
-	err := grpc.Invoke(ctx, "/ambition.AmbitionService/ReadOccurrences", in, out, c.cc, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
+func RegisterAmbitionServer(s *grpc.Server, srv AmbitionServer) {
+	s.RegisterService(&_Ambition_serviceDesc, srv)
 }
 
-func (c *ambitionServiceClient) CreateOccurrence(ctx context.Context, in *Occurrence, opts ...grpc.CallOption) (*OccurrenceResponse, error) {
-	out := new(OccurrenceResponse)
-	err := grpc.Invoke(ctx, "/ambition.AmbitionService/CreateOccurrence", in, out, c.cc, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// Server API for AmbitionService service
-
-type AmbitionServiceServer interface {
-	ReadActions(context.Context, *ReadActionsRequest) (*ActionsResponse, error)
-	ReadAction(context.Context, *Action) (*ActionResponse, error)
-	CreateAction(context.Context, *Action) (*ActionResponse, error)
-	ReadOccurrences(context.Context, *Occurrence) (*OccurrenceResponse, error)
-	CreateOccurrence(context.Context, *Occurrence) (*OccurrenceResponse, error)
-}
-
-func RegisterAmbitionServiceServer(s *grpc.Server, srv AmbitionServiceServer) {
-	s.RegisterService(&_AmbitionService_serviceDesc, srv)
-}
-
-func _AmbitionService_ReadActions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ReadActionsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AmbitionServiceServer).ReadActions(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/ambition.AmbitionService/ReadActions",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AmbitionServiceServer).ReadActions(ctx, req.(*ReadActionsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AmbitionService_ReadAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Ambition_CreateAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Action)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AmbitionServiceServer).ReadAction(ctx, in)
+		return srv.(AmbitionServer).CreateAction(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/ambition.AmbitionService/ReadAction",
+		FullMethod: "/ambition.Ambition/CreateAction",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AmbitionServiceServer).ReadAction(ctx, req.(*Action))
+		return srv.(AmbitionServer).CreateAction(ctx, req.(*Action))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AmbitionService_CreateAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Ambition_CreateOccurrence_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateOccurrenceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AmbitionServer).CreateOccurrence(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ambition.Ambition/CreateOccurrence",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AmbitionServer).CreateOccurrence(ctx, req.(*CreateOccurrenceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Ambition_ReadActions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(User)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AmbitionServer).ReadActions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ambition.Ambition/ReadActions",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AmbitionServer).ReadActions(ctx, req.(*User))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Ambition_ReadAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Action)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AmbitionServiceServer).CreateAction(ctx, in)
+		return srv.(AmbitionServer).ReadAction(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/ambition.AmbitionService/CreateAction",
+		FullMethod: "/ambition.Ambition/ReadAction",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AmbitionServiceServer).CreateAction(ctx, req.(*Action))
+		return srv.(AmbitionServer).ReadAction(ctx, req.(*Action))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AmbitionService_ReadOccurrences_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Occurrence)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AmbitionServiceServer).ReadOccurrences(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/ambition.AmbitionService/ReadOccurrences",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AmbitionServiceServer).ReadOccurrences(ctx, req.(*Occurrence))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AmbitionService_CreateOccurrence_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Occurrence)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AmbitionServiceServer).CreateOccurrence(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/ambition.AmbitionService/CreateOccurrence",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AmbitionServiceServer).CreateOccurrence(ctx, req.(*Occurrence))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-var _AmbitionService_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "ambition.AmbitionService",
-	HandlerType: (*AmbitionServiceServer)(nil),
+var _Ambition_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "ambition.Ambition",
+	HandlerType: (*AmbitionServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ReadActions",
-			Handler:    _AmbitionService_ReadActions_Handler,
-		},
-		{
-			MethodName: "ReadAction",
-			Handler:    _AmbitionService_ReadAction_Handler,
-		},
-		{
 			MethodName: "CreateAction",
-			Handler:    _AmbitionService_CreateAction_Handler,
-		},
-		{
-			MethodName: "ReadOccurrences",
-			Handler:    _AmbitionService_ReadOccurrences_Handler,
+			Handler:    _Ambition_CreateAction_Handler,
 		},
 		{
 			MethodName: "CreateOccurrence",
-			Handler:    _AmbitionService_CreateOccurrence_Handler,
+			Handler:    _Ambition_CreateOccurrence_Handler,
+		},
+		{
+			MethodName: "ReadActions",
+			Handler:    _Ambition_ReadActions_Handler,
+		},
+		{
+			MethodName: "ReadAction",
+			Handler:    _Ambition_ReadAction_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: fileDescriptor0,
+	Metadata: "ambition.proto",
 }
 
 func init() { proto.RegisterFile("ambition.proto", fileDescriptor0) }
 
 var fileDescriptor0 = []byte{
-	// 448 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0x9c, 0x54, 0x41, 0xcf, 0xd2, 0x40,
-	0x10, 0xb5, 0x2d, 0x22, 0x0e, 0x5f, 0x3e, 0xc8, 0x8a, 0x58, 0x1b, 0x62, 0xc8, 0x9e, 0x88, 0x31,
-	0x90, 0xa0, 0xf1, 0xa0, 0x5e, 0x88, 0x18, 0x21, 0x31, 0x6a, 0x8a, 0xde, 0x5d, 0xca, 0x84, 0x34,
-	0x81, 0x2e, 0x6e, 0x17, 0xe3, 0xc1, 0x1f, 0xec, 0xcf, 0x30, 0xb4, 0xdb, 0xdd, 0x2d, 0x14, 0xfc,
-	0xc2, 0xad, 0xf3, 0x98, 0x79, 0x6f, 0x66, 0xdf, 0x0c, 0x70, 0xcb, 0xb6, 0xcb, 0x58, 0xc6, 0x3c,
-	0x19, 0xee, 0x04, 0x97, 0x9c, 0x34, 0x8a, 0x38, 0xe8, 0xad, 0x39, 0x5f, 0x6f, 0x70, 0xc4, 0x76,
-	0xf1, 0x88, 0x25, 0x09, 0x97, 0xec, 0x00, 0xa7, 0x79, 0x1e, 0x7d, 0x01, 0x24, 0x44, 0xb6, 0x9a,
-	0x44, 0x19, 0x18, 0xe2, 0xcf, 0x3d, 0xa6, 0x92, 0x74, 0xa1, 0xfe, 0x3d, 0x45, 0x31, 0x5f, 0xf9,
-	0x4e, 0xdf, 0x19, 0x78, 0xa1, 0x8a, 0xe8, 0x57, 0xb8, 0xcd, 0x33, 0x43, 0x4c, 0x77, 0x3c, 0x49,
-	0x91, 0x0c, 0xa0, 0x9e, 0x23, 0x59, 0x66, 0x73, 0xdc, 0x1e, 0xea, 0x46, 0x54, 0xa6, 0xfa, 0x9d,
-	0x74, 0xe0, 0xfe, 0x07, 0x21, 0xb8, 0xf0, 0xdd, 0xbe, 0x33, 0x78, 0x18, 0xe6, 0x01, 0x5d, 0x40,
-	0x4b, 0x6b, 0x2b, 0xca, 0xe7, 0xf0, 0x40, 0x41, 0xbe, 0xd3, 0xf7, 0x2a, 0x39, 0x8b, 0x04, 0x43,
-	0x5a, 0xb3, 0x49, 0x7f, 0x17, 0x4d, 0x91, 0x00, 0x1a, 0xf9, 0x97, 0x1e, 0x45, 0xc7, 0xd6, 0x90,
-	0xae, 0x3d, 0x24, 0x79, 0x06, 0x90, 0xe7, 0x7c, 0x66, 0x5b, 0xf4, 0xbd, 0x8c, 0xd8, 0x42, 0x0e,
-	0x9c, 0xdf, 0x04, 0x6e, 0x36, 0x7c, 0xbe, 0x52, 0xb2, 0x3a, 0xa6, 0x08, 0x4f, 0xde, 0x0b, 0x64,
-	0x12, 0xbf, 0x44, 0xd1, 0x5e, 0x08, 0x4c, 0x22, 0x2c, 0xde, 0xf4, 0x52, 0x2b, 0x01, 0x34, 0xa6,
-	0x4c, 0xa2, 0x8c, 0xb7, 0xa8, 0x9e, 0x47, 0xc7, 0x84, 0x40, 0x6d, 0xca, 0x24, 0x53, 0x8d, 0x64,
-	0xdf, 0xf4, 0x13, 0x74, 0x0f, 0xae, 0x19, 0x91, 0xff, 0x39, 0x57, 0x52, 0x77, 0xcb, 0xea, 0xf4,
-	0x2d, 0x3c, 0x2e, 0xb3, 0x15, 0x64, 0x14, 0x6e, 0x0c, 0xa8, 0x29, 0x4b, 0x18, 0xfd, 0x01, 0xc4,
-	0x2e, 0x54, 0x1e, 0xbe, 0x02, 0x30, 0xa8, 0x5a, 0x8d, 0x8e, 0xb1, 0xd1, 0xaa, 0xb0, 0xf2, 0xce,
-	0xac, 0x48, 0x04, 0x8f, 0x4a, 0x83, 0x2a, 0x89, 0xd7, 0xd0, 0xb4, 0x60, 0xb5, 0x2a, 0xd5, 0x1a,
-	0x76, 0xe2, 0x19, 0x91, 0x3f, 0x76, 0xc3, 0x77, 0x19, 0xfc, 0xd2, 0x8b, 0x96, 0xfc, 0xf4, 0xce,
-	0xf8, 0x59, 0x33, 0x7e, 0x8e, 0xff, 0xba, 0xd0, 0x9a, 0xa8, 0xc6, 0x17, 0x28, 0x7e, 0xc5, 0x11,
-	0x92, 0x19, 0x34, 0xad, 0xcb, 0x24, 0x3d, 0x33, 0xd9, 0xe9, 0xc1, 0x06, 0x4f, 0x8f, 0x4f, 0x44,
-	0xbf, 0x13, 0xbd, 0x47, 0xde, 0x00, 0x98, 0x12, 0x72, 0x72, 0x4d, 0x81, 0x7f, 0x72, 0x5f, 0xa6,
-	0xf6, 0x1d, 0xdc, 0xe4, 0x0b, 0x7d, 0x55, 0xf5, 0x47, 0x68, 0x1d, 0xed, 0x29, 0xa9, 0x74, 0x28,
-	0xe8, 0x55, 0xfa, 0x66, 0x88, 0x66, 0xd0, 0x3e, 0xbe, 0xab, 0xeb, 0x98, 0x96, 0xf5, 0xec, 0x7f,
-	0xef, 0xe5, 0xbf, 0x00, 0x00, 0x00, 0xff, 0xff, 0xbc, 0x54, 0xc6, 0x45, 0x31, 0x05, 0x00, 0x00,
+	// 381 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0x8c, 0x52, 0x5d, 0x4b, 0xeb, 0x40,
+	0x10, 0x6d, 0xda, 0xd2, 0xdb, 0x3b, 0xb9, 0xf4, 0x96, 0x55, 0x34, 0xe6, 0xa1, 0xd4, 0x7d, 0x2a,
+	0x82, 0x0d, 0xc4, 0xe2, 0x83, 0xe0, 0x43, 0x31, 0x08, 0x05, 0xab, 0x12, 0xf4, 0x07, 0x6c, 0xd2,
+	0x31, 0x0d, 0xd8, 0x6c, 0xdd, 0xdd, 0x3c, 0xf8, 0xeb, 0x95, 0x7c, 0x34, 0x59, 0xfb, 0x01, 0xbe,
+	0x65, 0xce, 0x9c, 0x39, 0x39, 0x67, 0x66, 0xa1, 0xc7, 0x56, 0x41, 0xac, 0x62, 0x9e, 0x8c, 0xd7,
+	0x82, 0x2b, 0x4e, 0xba, 0x9b, 0xda, 0xbe, 0x8f, 0x62, 0xb5, 0x4c, 0x83, 0x71, 0xc8, 0x57, 0xce,
+	0x4b, 0x9a, 0xe0, 0x03, 0x0b, 0x9c, 0x88, 0x5f, 0x2a, 0x91, 0x4a, 0xe9, 0x2c, 0xf0, 0x4d, 0x09,
+	0x44, 0x27, 0xe2, 0x3c, 0x7a, 0x47, 0xb5, 0x8c, 0xc5, 0x62, 0xcd, 0x84, 0xfa, 0x74, 0x58, 0x92,
+	0x70, 0xc5, 0x32, 0x01, 0x59, 0x28, 0xd2, 0x67, 0xe8, 0x4c, 0xc3, 0x0c, 0x20, 0x3d, 0x68, 0xce,
+	0x3c, 0xcb, 0x18, 0x1a, 0xa3, 0x96, 0xdf, 0x9c, 0x79, 0xe4, 0x04, 0x3a, 0xaf, 0x12, 0xc5, 0xcc,
+	0xb3, 0x9a, 0x39, 0x56, 0x56, 0x64, 0x00, 0x50, 0x4c, 0x3c, 0xb2, 0x15, 0x5a, 0xad, 0xa1, 0x31,
+	0xfa, 0xeb, 0x6b, 0x08, 0x8d, 0xe0, 0xf4, 0x4e, 0x20, 0x53, 0xf8, 0x14, 0x86, 0xa9, 0x10, 0x98,
+	0x84, 0xe8, 0xe3, 0x47, 0x8a, 0x52, 0x69, 0x92, 0xc6, 0x0f, 0xc9, 0x09, 0x40, 0x4d, 0xce, 0x7f,
+	0x67, 0xba, 0xc7, 0xe3, 0x2a, 0xbb, 0x26, 0xa4, 0xf1, 0xe8, 0x52, 0x9f, 0xda, 0xb1, 0x6f, 0x43,
+	0xb7, 0x30, 0x55, 0x05, 0xa8, 0xea, 0xac, 0xe7, 0x31, 0x85, 0x2a, 0xae, 0x02, 0x54, 0x35, 0x21,
+	0xd0, 0xf6, 0x98, 0x62, 0x56, 0x3b, 0xc7, 0xf3, 0x6f, 0x3a, 0x80, 0x76, 0xe6, 0xf4, 0x90, 0x7f,
+	0x7a, 0x0b, 0xff, 0x0b, 0x6d, 0xe9, 0xa3, 0x5c, 0xf3, 0x44, 0x22, 0xb9, 0x80, 0x3f, 0x25, 0x64,
+	0x19, 0xc3, 0xd6, 0xc8, 0x74, 0xfb, 0x75, 0x9e, 0xa2, 0xe1, 0x6f, 0x08, 0x74, 0x0e, 0x47, 0x75,
+	0x90, 0x5a, 0xe2, 0x1a, 0x4c, 0x0d, 0x2e, 0x65, 0xf6, 0xaf, 0x45, 0x27, 0xba, 0x5f, 0x06, 0x74,
+	0xa7, 0x25, 0x89, 0x4c, 0xe0, 0x5f, 0x71, 0x8d, 0xf2, 0xca, 0x3b, 0x36, 0xec, 0x1d, 0x84, 0x36,
+	0xc8, 0x1c, 0xfa, 0xdb, 0x37, 0x24, 0xe7, 0x35, 0xef, 0xc0, 0x7d, 0xed, 0xbd, 0xe6, 0x68, 0x83,
+	0xdc, 0x80, 0xe9, 0x23, 0x5b, 0x94, 0x79, 0x49, 0xaf, 0xa6, 0x65, 0x0b, 0xb4, 0xcf, 0xb6, 0x1d,
+	0x54, 0x3b, 0xa0, 0x0d, 0xe2, 0x02, 0xd4, 0xb3, 0xbf, 0xb3, 0x1f, 0x74, 0xf2, 0xb7, 0x7d, 0xf5,
+	0x1d, 0x00, 0x00, 0xff, 0xff, 0xc1, 0x17, 0xc5, 0x7f, 0x3f, 0x03, 0x00, 0x00,
 }

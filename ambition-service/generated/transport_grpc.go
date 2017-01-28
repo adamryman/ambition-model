@@ -15,14 +15,28 @@ import (
 	pb "github.com/adamryman/ambition-model/ambition-service"
 )
 
-// MakeGRPCServer makes a set of endpoints available as a gRPC AmbitionServiceServer.
-func MakeGRPCServer(ctx context.Context, endpoints Endpoints) pb.AmbitionServiceServer {
+// MakeGRPCServer makes a set of endpoints available as a gRPC AmbitionServer.
+func MakeGRPCServer(ctx context.Context, endpoints Endpoints) pb.AmbitionServer {
 	serverOptions := []grpctransport.ServerOption{
 		grpctransport.ServerBefore(metadataToContext),
 	}
 	return &grpcServer{
-		// ambitionservice
+		// ambition
 
+		createaction: grpctransport.NewServer(
+			ctx,
+			endpoints.CreateActionEndpoint,
+			DecodeGRPCCreateActionRequest,
+			EncodeGRPCCreateActionResponse,
+			serverOptions...,
+		),
+		createoccurrence: grpctransport.NewServer(
+			ctx,
+			endpoints.CreateOccurrenceEndpoint,
+			DecodeGRPCCreateOccurrenceRequest,
+			EncodeGRPCCreateOccurrenceResponse,
+			serverOptions...,
+		),
 		readactions: grpctransport.NewServer(
 			ctx,
 			endpoints.ReadActionsEndpoint,
@@ -37,42 +51,36 @@ func MakeGRPCServer(ctx context.Context, endpoints Endpoints) pb.AmbitionService
 			EncodeGRPCReadActionResponse,
 			serverOptions...,
 		),
-		createaction: grpctransport.NewServer(
-			ctx,
-			endpoints.CreateActionEndpoint,
-			DecodeGRPCCreateActionRequest,
-			EncodeGRPCCreateActionResponse,
-			serverOptions...,
-		),
-		readoccurrences: grpctransport.NewServer(
-			ctx,
-			endpoints.ReadOccurrencesEndpoint,
-			DecodeGRPCReadOccurrencesRequest,
-			EncodeGRPCReadOccurrencesResponse,
-			serverOptions...,
-		),
-		createoccurrence: grpctransport.NewServer(
-			ctx,
-			endpoints.CreateOccurrenceEndpoint,
-			DecodeGRPCCreateOccurrenceRequest,
-			EncodeGRPCCreateOccurrenceResponse,
-			serverOptions...,
-		),
 	}
 }
 
-// grpcServer implements the AmbitionServiceServer interface
+// grpcServer implements the AmbitionServer interface
 type grpcServer struct {
+	createaction     grpctransport.Handler
+	createoccurrence grpctransport.Handler
 	readactions      grpctransport.Handler
 	readaction       grpctransport.Handler
-	createaction     grpctransport.Handler
-	readoccurrences  grpctransport.Handler
-	createoccurrence grpctransport.Handler
 }
 
-// Methods for grpcServer to implement AmbitionServiceServer interface
+// Methods for grpcServer to implement AmbitionServer interface
 
-func (s *grpcServer) ReadActions(ctx context.Context, req *pb.ReadActionsRequest) (*pb.ActionsResponse, error) {
+func (s *grpcServer) CreateAction(ctx context.Context, req *pb.Action) (*pb.Action, error) {
+	_, rep, err := s.createaction.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*pb.Action), nil
+}
+
+func (s *grpcServer) CreateOccurrence(ctx context.Context, req *pb.CreateOccurrenceRequest) (*pb.Occurrence, error) {
+	_, rep, err := s.createoccurrence.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*pb.Occurrence), nil
+}
+
+func (s *grpcServer) ReadActions(ctx context.Context, req *pb.User) (*pb.ActionsResponse, error) {
 	_, rep, err := s.readactions.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
@@ -80,44 +88,34 @@ func (s *grpcServer) ReadActions(ctx context.Context, req *pb.ReadActionsRequest
 	return rep.(*pb.ActionsResponse), nil
 }
 
-func (s *grpcServer) ReadAction(ctx context.Context, req *pb.Action) (*pb.ActionResponse, error) {
+func (s *grpcServer) ReadAction(ctx context.Context, req *pb.Action) (*pb.Action, error) {
 	_, rep, err := s.readaction.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	return rep.(*pb.ActionResponse), nil
-}
-
-func (s *grpcServer) CreateAction(ctx context.Context, req *pb.Action) (*pb.ActionResponse, error) {
-	_, rep, err := s.createaction.ServeGRPC(ctx, req)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*pb.ActionResponse), nil
-}
-
-func (s *grpcServer) ReadOccurrences(ctx context.Context, req *pb.Occurrence) (*pb.OccurrenceResponse, error) {
-	_, rep, err := s.readoccurrences.ServeGRPC(ctx, req)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*pb.OccurrenceResponse), nil
-}
-
-func (s *grpcServer) CreateOccurrence(ctx context.Context, req *pb.Occurrence) (*pb.OccurrenceResponse, error) {
-	_, rep, err := s.createoccurrence.ServeGRPC(ctx, req)
-	if err != nil {
-		return nil, err
-	}
-	return rep.(*pb.OccurrenceResponse), nil
+	return rep.(*pb.Action), nil
 }
 
 // Server Decode
 
+// DecodeGRPCCreateActionRequest is a transport/grpc.DecodeRequestFunc that converts a
+// gRPC createaction request to a user-domain createaction request. Primarily useful in a server.
+func DecodeGRPCCreateActionRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
+	req := grpcReq.(*pb.Action)
+	return req, nil
+}
+
+// DecodeGRPCCreateOccurrenceRequest is a transport/grpc.DecodeRequestFunc that converts a
+// gRPC createoccurrence request to a user-domain createoccurrence request. Primarily useful in a server.
+func DecodeGRPCCreateOccurrenceRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
+	req := grpcReq.(*pb.CreateOccurrenceRequest)
+	return req, nil
+}
+
 // DecodeGRPCReadActionsRequest is a transport/grpc.DecodeRequestFunc that converts a
 // gRPC readactions request to a user-domain readactions request. Primarily useful in a server.
 func DecodeGRPCReadActionsRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
-	req := grpcReq.(*pb.ReadActionsRequest)
+	req := grpcReq.(*pb.User)
 	return req, nil
 }
 
@@ -128,28 +126,21 @@ func DecodeGRPCReadActionRequest(_ context.Context, grpcReq interface{}) (interf
 	return req, nil
 }
 
-// DecodeGRPCCreateActionRequest is a transport/grpc.DecodeRequestFunc that converts a
-// gRPC createaction request to a user-domain createaction request. Primarily useful in a server.
-func DecodeGRPCCreateActionRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
-	req := grpcReq.(*pb.Action)
-	return req, nil
-}
-
-// DecodeGRPCReadOccurrencesRequest is a transport/grpc.DecodeRequestFunc that converts a
-// gRPC readoccurrences request to a user-domain readoccurrences request. Primarily useful in a server.
-func DecodeGRPCReadOccurrencesRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
-	req := grpcReq.(*pb.Occurrence)
-	return req, nil
-}
-
-// DecodeGRPCCreateOccurrenceRequest is a transport/grpc.DecodeRequestFunc that converts a
-// gRPC createoccurrence request to a user-domain createoccurrence request. Primarily useful in a server.
-func DecodeGRPCCreateOccurrenceRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
-	req := grpcReq.(*pb.Occurrence)
-	return req, nil
-}
-
 // Client Decode
+
+// DecodeGRPCCreateActionResponse is a transport/grpc.DecodeResponseFunc that converts a
+// gRPC createaction reply to a user-domain createaction response. Primarily useful in a client.
+func DecodeGRPCCreateActionResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
+	reply := grpcReply.(*pb.Action)
+	return reply, nil
+}
+
+// DecodeGRPCCreateOccurrenceResponse is a transport/grpc.DecodeResponseFunc that converts a
+// gRPC createoccurrence reply to a user-domain createoccurrence response. Primarily useful in a client.
+func DecodeGRPCCreateOccurrenceResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
+	reply := grpcReply.(*pb.Occurrence)
+	return reply, nil
+}
 
 // DecodeGRPCReadActionsResponse is a transport/grpc.DecodeResponseFunc that converts a
 // gRPC readactions reply to a user-domain readactions response. Primarily useful in a client.
@@ -161,32 +152,25 @@ func DecodeGRPCReadActionsResponse(_ context.Context, grpcReply interface{}) (in
 // DecodeGRPCReadActionResponse is a transport/grpc.DecodeResponseFunc that converts a
 // gRPC readaction reply to a user-domain readaction response. Primarily useful in a client.
 func DecodeGRPCReadActionResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
-	reply := grpcReply.(*pb.ActionResponse)
-	return reply, nil
-}
-
-// DecodeGRPCCreateActionResponse is a transport/grpc.DecodeResponseFunc that converts a
-// gRPC createaction reply to a user-domain createaction response. Primarily useful in a client.
-func DecodeGRPCCreateActionResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
-	reply := grpcReply.(*pb.ActionResponse)
-	return reply, nil
-}
-
-// DecodeGRPCReadOccurrencesResponse is a transport/grpc.DecodeResponseFunc that converts a
-// gRPC readoccurrences reply to a user-domain readoccurrences response. Primarily useful in a client.
-func DecodeGRPCReadOccurrencesResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
-	reply := grpcReply.(*pb.OccurrenceResponse)
-	return reply, nil
-}
-
-// DecodeGRPCCreateOccurrenceResponse is a transport/grpc.DecodeResponseFunc that converts a
-// gRPC createoccurrence reply to a user-domain createoccurrence response. Primarily useful in a client.
-func DecodeGRPCCreateOccurrenceResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
-	reply := grpcReply.(*pb.OccurrenceResponse)
+	reply := grpcReply.(*pb.Action)
 	return reply, nil
 }
 
 // Server Encode
+
+// EncodeGRPCCreateActionResponse is a transport/grpc.EncodeResponseFunc that converts a
+// user-domain createaction response to a gRPC createaction reply. Primarily useful in a server.
+func EncodeGRPCCreateActionResponse(_ context.Context, response interface{}) (interface{}, error) {
+	resp := response.(*pb.Action)
+	return resp, nil
+}
+
+// EncodeGRPCCreateOccurrenceResponse is a transport/grpc.EncodeResponseFunc that converts a
+// user-domain createoccurrence response to a gRPC createoccurrence reply. Primarily useful in a server.
+func EncodeGRPCCreateOccurrenceResponse(_ context.Context, response interface{}) (interface{}, error) {
+	resp := response.(*pb.Occurrence)
+	return resp, nil
+}
 
 // EncodeGRPCReadActionsResponse is a transport/grpc.EncodeResponseFunc that converts a
 // user-domain readactions response to a gRPC readactions reply. Primarily useful in a server.
@@ -198,46 +182,11 @@ func EncodeGRPCReadActionsResponse(_ context.Context, response interface{}) (int
 // EncodeGRPCReadActionResponse is a transport/grpc.EncodeResponseFunc that converts a
 // user-domain readaction response to a gRPC readaction reply. Primarily useful in a server.
 func EncodeGRPCReadActionResponse(_ context.Context, response interface{}) (interface{}, error) {
-	resp := response.(*pb.ActionResponse)
-	return resp, nil
-}
-
-// EncodeGRPCCreateActionResponse is a transport/grpc.EncodeResponseFunc that converts a
-// user-domain createaction response to a gRPC createaction reply. Primarily useful in a server.
-func EncodeGRPCCreateActionResponse(_ context.Context, response interface{}) (interface{}, error) {
-	resp := response.(*pb.ActionResponse)
-	return resp, nil
-}
-
-// EncodeGRPCReadOccurrencesResponse is a transport/grpc.EncodeResponseFunc that converts a
-// user-domain readoccurrences response to a gRPC readoccurrences reply. Primarily useful in a server.
-func EncodeGRPCReadOccurrencesResponse(_ context.Context, response interface{}) (interface{}, error) {
-	resp := response.(*pb.OccurrenceResponse)
-	return resp, nil
-}
-
-// EncodeGRPCCreateOccurrenceResponse is a transport/grpc.EncodeResponseFunc that converts a
-// user-domain createoccurrence response to a gRPC createoccurrence reply. Primarily useful in a server.
-func EncodeGRPCCreateOccurrenceResponse(_ context.Context, response interface{}) (interface{}, error) {
-	resp := response.(*pb.OccurrenceResponse)
+	resp := response.(*pb.Action)
 	return resp, nil
 }
 
 // Client Encode
-
-// EncodeGRPCReadActionsRequest is a transport/grpc.EncodeRequestFunc that converts a
-// user-domain readactions request to a gRPC readactions request. Primarily useful in a client.
-func EncodeGRPCReadActionsRequest(_ context.Context, request interface{}) (interface{}, error) {
-	req := request.(*pb.ReadActionsRequest)
-	return req, nil
-}
-
-// EncodeGRPCReadActionRequest is a transport/grpc.EncodeRequestFunc that converts a
-// user-domain readaction request to a gRPC readaction request. Primarily useful in a client.
-func EncodeGRPCReadActionRequest(_ context.Context, request interface{}) (interface{}, error) {
-	req := request.(*pb.Action)
-	return req, nil
-}
 
 // EncodeGRPCCreateActionRequest is a transport/grpc.EncodeRequestFunc that converts a
 // user-domain createaction request to a gRPC createaction request. Primarily useful in a client.
@@ -246,17 +195,24 @@ func EncodeGRPCCreateActionRequest(_ context.Context, request interface{}) (inte
 	return req, nil
 }
 
-// EncodeGRPCReadOccurrencesRequest is a transport/grpc.EncodeRequestFunc that converts a
-// user-domain readoccurrences request to a gRPC readoccurrences request. Primarily useful in a client.
-func EncodeGRPCReadOccurrencesRequest(_ context.Context, request interface{}) (interface{}, error) {
-	req := request.(*pb.Occurrence)
-	return req, nil
-}
-
 // EncodeGRPCCreateOccurrenceRequest is a transport/grpc.EncodeRequestFunc that converts a
 // user-domain createoccurrence request to a gRPC createoccurrence request. Primarily useful in a client.
 func EncodeGRPCCreateOccurrenceRequest(_ context.Context, request interface{}) (interface{}, error) {
-	req := request.(*pb.Occurrence)
+	req := request.(*pb.CreateOccurrenceRequest)
+	return req, nil
+}
+
+// EncodeGRPCReadActionsRequest is a transport/grpc.EncodeRequestFunc that converts a
+// user-domain readactions request to a gRPC readactions request. Primarily useful in a client.
+func EncodeGRPCReadActionsRequest(_ context.Context, request interface{}) (interface{}, error) {
+	req := request.(*pb.User)
+	return req, nil
+}
+
+// EncodeGRPCReadActionRequest is a transport/grpc.EncodeRequestFunc that converts a
+// user-domain readaction request to a gRPC readaction request. Primarily useful in a client.
+func EncodeGRPCReadActionRequest(_ context.Context, request interface{}) (interface{}, error) {
+	req := request.(*pb.Action)
 	return req, nil
 }
 

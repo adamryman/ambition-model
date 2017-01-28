@@ -28,16 +28,31 @@ import (
 // construct individual endpoints using transport/http.NewClient, combine them
 // into an Endpoints, and return it to the caller as a Service.
 type Endpoints struct {
+	CreateActionEndpoint     endpoint.Endpoint
+	CreateOccurrenceEndpoint endpoint.Endpoint
 	ReadActionsEndpoint      endpoint.Endpoint
 	ReadActionEndpoint       endpoint.Endpoint
-	CreateActionEndpoint     endpoint.Endpoint
-	ReadOccurrencesEndpoint  endpoint.Endpoint
-	CreateOccurrenceEndpoint endpoint.Endpoint
 }
 
 // Endpoints
 
-func (e Endpoints) ReadActions(ctx context.Context, in *pb.ReadActionsRequest) (*pb.ActionsResponse, error) {
+func (e Endpoints) CreateAction(ctx context.Context, in *pb.Action) (*pb.Action, error) {
+	response, err := e.CreateActionEndpoint(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+	return response.(*pb.Action), nil
+}
+
+func (e Endpoints) CreateOccurrence(ctx context.Context, in *pb.CreateOccurrenceRequest) (*pb.Occurrence, error) {
+	response, err := e.CreateOccurrenceEndpoint(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+	return response.(*pb.Occurrence), nil
+}
+
+func (e Endpoints) ReadActions(ctx context.Context, in *pb.User) (*pb.ActionsResponse, error) {
 	response, err := e.ReadActionsEndpoint(ctx, in)
 	if err != nil {
 		return nil, err
@@ -45,63 +60,17 @@ func (e Endpoints) ReadActions(ctx context.Context, in *pb.ReadActionsRequest) (
 	return response.(*pb.ActionsResponse), nil
 }
 
-func (e Endpoints) ReadAction(ctx context.Context, in *pb.Action) (*pb.ActionResponse, error) {
+func (e Endpoints) ReadAction(ctx context.Context, in *pb.Action) (*pb.Action, error) {
 	response, err := e.ReadActionEndpoint(ctx, in)
 	if err != nil {
 		return nil, err
 	}
-	return response.(*pb.ActionResponse), nil
-}
-
-func (e Endpoints) CreateAction(ctx context.Context, in *pb.Action) (*pb.ActionResponse, error) {
-	response, err := e.CreateActionEndpoint(ctx, in)
-	if err != nil {
-		return nil, err
-	}
-	return response.(*pb.ActionResponse), nil
-}
-
-func (e Endpoints) ReadOccurrences(ctx context.Context, in *pb.Occurrence) (*pb.OccurrenceResponse, error) {
-	response, err := e.ReadOccurrencesEndpoint(ctx, in)
-	if err != nil {
-		return nil, err
-	}
-	return response.(*pb.OccurrenceResponse), nil
-}
-
-func (e Endpoints) CreateOccurrence(ctx context.Context, in *pb.Occurrence) (*pb.OccurrenceResponse, error) {
-	response, err := e.CreateOccurrenceEndpoint(ctx, in)
-	if err != nil {
-		return nil, err
-	}
-	return response.(*pb.OccurrenceResponse), nil
+	return response.(*pb.Action), nil
 }
 
 // Make Endpoints
 
-func MakeReadActionsEndpoint(s pb.AmbitionServiceServer) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		req := request.(*pb.ReadActionsRequest)
-		v, err := s.ReadActions(ctx, req)
-		if err != nil {
-			return nil, err
-		}
-		return v, nil
-	}
-}
-
-func MakeReadActionEndpoint(s pb.AmbitionServiceServer) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		req := request.(*pb.Action)
-		v, err := s.ReadAction(ctx, req)
-		if err != nil {
-			return nil, err
-		}
-		return v, nil
-	}
-}
-
-func MakeCreateActionEndpoint(s pb.AmbitionServiceServer) endpoint.Endpoint {
+func MakeCreateActionEndpoint(s pb.AmbitionServer) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(*pb.Action)
 		v, err := s.CreateAction(ctx, req)
@@ -112,10 +81,10 @@ func MakeCreateActionEndpoint(s pb.AmbitionServiceServer) endpoint.Endpoint {
 	}
 }
 
-func MakeReadOccurrencesEndpoint(s pb.AmbitionServiceServer) endpoint.Endpoint {
+func MakeCreateOccurrenceEndpoint(s pb.AmbitionServer) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		req := request.(*pb.Occurrence)
-		v, err := s.ReadOccurrences(ctx, req)
+		req := request.(*pb.CreateOccurrenceRequest)
+		v, err := s.CreateOccurrence(ctx, req)
 		if err != nil {
 			return nil, err
 		}
@@ -123,13 +92,41 @@ func MakeReadOccurrencesEndpoint(s pb.AmbitionServiceServer) endpoint.Endpoint {
 	}
 }
 
-func MakeCreateOccurrenceEndpoint(s pb.AmbitionServiceServer) endpoint.Endpoint {
+func MakeReadActionsEndpoint(s pb.AmbitionServer) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		req := request.(*pb.Occurrence)
-		v, err := s.CreateOccurrence(ctx, req)
+		req := request.(*pb.User)
+		v, err := s.ReadActions(ctx, req)
 		if err != nil {
 			return nil, err
 		}
 		return v, nil
 	}
+}
+
+func MakeReadActionEndpoint(s pb.AmbitionServer) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(*pb.Action)
+		v, err := s.ReadAction(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return v, nil
+	}
+}
+
+// WrapAll wraps each Endpoint field of struct Endpoints with a
+// go-kit/kit/endpoint.Middleware.
+// Use this for applying a set of middlewares to every endpoint in the service.
+// The middlewares will be applied in the order passed, with the first
+// middleware being the outermost middleware.
+func (e *Endpoints) WrapAll(middlewares ...endpoint.Middleware) {
+	if len(middlewares) == 0 {
+		return
+	}
+	m := endpoint.Chain(middlewares[0], middlewares[1:]...)
+
+	e.CreateActionEndpoint = m(e.CreateActionEndpoint)
+	e.CreateOccurrenceEndpoint = m(e.CreateOccurrenceEndpoint)
+	e.ReadActionsEndpoint = m(e.ReadActionsEndpoint)
+	e.ReadActionEndpoint = m(e.ReadActionEndpoint)
 }

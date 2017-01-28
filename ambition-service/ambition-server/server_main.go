@@ -7,21 +7,19 @@ import (
 	"net/http"
 	"net/http/pprof"
 	"os"
-	"os/signal"
-	"syscall"
 
 	// 3d Party
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
 	// Go Kit
-	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 
 	// This Service
 	pb "github.com/adamryman/ambition-model/ambition-service"
 	svc "github.com/adamryman/ambition-model/ambition-service/generated"
 	handler "github.com/adamryman/ambition-model/ambition-service/handlers/server"
+	middlewares "github.com/adamryman/ambition-model/ambition-service/middlewares"
 )
 
 func main() {
@@ -31,6 +29,20 @@ func main() {
 		grpcAddr  = flag.String("grpc.addr", ":5040", "gRPC (HTTP) listen address")
 	)
 	flag.Parse()
+
+	// Use environment variables, if set. Flags have priority over Env vars.
+	if os.Getenv("DEBUG_ADDR") != "" && *debugAddr == ":5060" {
+		*debugAddr = os.Getenv("DEBUG_ADDR")
+	}
+	if os.Getenv("HTTP_ADDR") != "" && *httpAddr == ":5050" {
+		*httpAddr = os.Getenv("HTTP_ADDR")
+	}
+	if os.Getenv("GRPC_ADDR") != "" && *grpcAddr == ":5040" {
+		*grpcAddr = os.Getenv("GRPC_ADDR")
+	}
+	if os.Getenv("PORT") != "" && *httpAddr == ":5050" {
+		*httpAddr = fmt.Sprintf(":%s", os.Getenv("PORT"))
+	}
 
 	// Logging domain.
 	var logger log.Logger
@@ -43,62 +55,38 @@ func main() {
 	defer logger.Log("msg", "goodbye")
 
 	// Business domain.
-	var service pb.AmbitionServiceServer
+	var service pb.AmbitionServer
 	{
 		service = handler.NewService()
-		// add service logging and metrics here
+		// Wrap Service with middlewares. See ../middlewares/service.go
+		service = middlewares.WrapService(service)
 	}
 
 	// Endpoint domain.
-
-	var readactionsEndpoint endpoint.Endpoint
-	{
-		readactionsEndpoint = svc.MakeReadActionsEndpoint(service)
-		// Add endpoint tracing, instrumentation and logging here
-	}
-
-	var readactionEndpoint endpoint.Endpoint
-	{
-		readactionEndpoint = svc.MakeReadActionEndpoint(service)
-		// Add endpoint tracing, instrumentation and logging here
-	}
-
-	var createactionEndpoint endpoint.Endpoint
-	{
-		createactionEndpoint = svc.MakeCreateActionEndpoint(service)
-		// Add endpoint tracing, instrumentation and logging here
-	}
-
-	var readoccurrencesEndpoint endpoint.Endpoint
-	{
-		readoccurrencesEndpoint = svc.MakeReadOccurrencesEndpoint(service)
-		// Add endpoint tracing, instrumentation and logging here
-	}
-
-	var createoccurrenceEndpoint endpoint.Endpoint
-	{
+	var (
+		createactionEndpoint     = svc.MakeCreateActionEndpoint(service)
 		createoccurrenceEndpoint = svc.MakeCreateOccurrenceEndpoint(service)
-		// Add endpoint tracing, instrumentation and logging here
-	}
+		readactionsEndpoint      = svc.MakeReadActionsEndpoint(service)
+		readactionEndpoint       = svc.MakeReadActionEndpoint(service)
+	)
 
+	// Wrap Endpoints with middlewares. See ../middlewares/endpoints.go
 	endpoints := svc.Endpoints{
+		CreateActionEndpoint:     createactionEndpoint,
+		CreateOccurrenceEndpoint: createoccurrenceEndpoint,
 		ReadActionsEndpoint:      readactionsEndpoint,
 		ReadActionEndpoint:       readactionEndpoint,
-		CreateActionEndpoint:     createactionEndpoint,
-		ReadOccurrencesEndpoint:  readoccurrencesEndpoint,
-		CreateOccurrenceEndpoint: createoccurrenceEndpoint,
 	}
+
+	// Wrap selected Endpoints with middlewares. See ../middlewares/endpoints.go
+	endpoints = middlewares.WrapEndpoints(endpoints)
 
 	// Mechanical domain.
 	errc := make(chan error)
 	ctx := context.Background()
 
 	// Interrupt handler.
-	go func() {
-		c := make(chan os.Signal, 1)
-		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
-		errc <- fmt.Errorf("%s", <-c)
-	}()
+	go handler.InterruptHandler(errc)
 
 	// Debug listener.
 	go func() {
@@ -135,7 +123,7 @@ func main() {
 
 		srv := svc.MakeGRPCServer(ctx, endpoints)
 		s := grpc.NewServer()
-		pb.RegisterAmbitionServiceServer(s, srv)
+		pb.RegisterAmbitionServer(s, srv)
 
 		logger.Log("addr", *grpcAddr)
 		errc <- s.Serve(ln)
