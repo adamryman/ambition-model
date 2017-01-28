@@ -38,19 +38,22 @@ func main() {
 	var (
 		httpAddr = flag.String("http.addr", "", "HTTP address of addsvc")
 		grpcAddr = flag.String("grpc.addr", ":5040", "gRPC (HTTP) address of addsvc")
-		method   = flag.String("method", "createaction", "createaction,createoccurrence,readactions,readaction")
+		method   = flag.String("method", "createaction", "createaction,createoccurrence,readaction,readactions,readoccurrences")
 	)
 
 	var (
-		flagUserIDCreateOccurrence     = flag.Int64("createoccurrence.userid", 0, "")
-		flagOccurrenceCreateOccurrence = flag.String("createoccurrence.occurrence", "", "")
-		flagUserIDReadActions          = flag.Int64("readactions.userid", 0, "")
-		flagIDReadAction               = flag.Int64("readaction.id", 0, "")
-		flagUserIDReadAction           = flag.Int64("readaction.userid", 0, "")
-		flagActionNameReadAction       = flag.String("readaction.actionname", "", "")
 		flagIDCreateAction             = flag.Int64("createaction.id", 0, "")
 		flagUserIDCreateAction         = flag.Int64("createaction.userid", 0, "")
-		flagActionNameCreateAction     = flag.String("createaction.actionname", "", "")
+		flagNameCreateAction           = flag.String("createaction.name", "", "")
+		flagUserIDCreateOccurrence     = flag.Int64("createoccurrence.userid", 0, "")
+		flagOccurrenceCreateOccurrence = flag.String("createoccurrence.occurrence", "", "")
+		flagIDReadAction               = flag.Int64("readaction.id", 0, "")
+		flagUserIDReadAction           = flag.Int64("readaction.userid", 0, "")
+		flagNameReadAction             = flag.String("readaction.name", "", "")
+		flagUserIDReadActions          = flag.Int64("readactions.userid", 0, "")
+		flagIDReadOccurrences          = flag.Int64("readoccurrences.id", 0, "")
+		flagUserIDReadOccurrences      = flag.Int64("readoccurrences.userid", 0, "")
+		flagNameReadOccurrences        = flag.String("readoccurrences.name", "", "")
 	)
 	flag.Parse()
 
@@ -83,8 +86,8 @@ func main() {
 		var err error
 		IDCreateAction := *flagIDCreateAction
 		UserIDCreateAction := *flagUserIDCreateAction
-		ActionNameCreateAction := *flagActionNameCreateAction
-		request, err := clientHandler.CreateAction(IDCreateAction, UserIDCreateAction, ActionNameCreateAction)
+		NameCreateAction := *flagNameCreateAction
+		request, err := clientHandler.CreateAction(IDCreateAction, UserIDCreateAction, NameCreateAction)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error calling clientHandler.CreateAction: %v\n", err)
 			os.Exit(1)
@@ -96,7 +99,7 @@ func main() {
 			os.Exit(1)
 		}
 		fmt.Println("Client Requested with:")
-		fmt.Println(IDCreateAction, UserIDCreateAction, ActionNameCreateAction)
+		fmt.Println(IDCreateAction, UserIDCreateAction, NameCreateAction)
 		fmt.Println("Server Responded with:")
 		fmt.Println(v)
 	case "createoccurrence":
@@ -126,6 +129,26 @@ func main() {
 		fmt.Println(UserIDCreateOccurrence, OccurrenceCreateOccurrence)
 		fmt.Println("Server Responded with:")
 		fmt.Println(v)
+	case "readaction":
+		var err error
+		IDReadAction := *flagIDReadAction
+		UserIDReadAction := *flagUserIDReadAction
+		NameReadAction := *flagNameReadAction
+		request, err := clientHandler.ReadAction(IDReadAction, UserIDReadAction, NameReadAction)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error calling clientHandler.ReadAction: %v\n", err)
+			os.Exit(1)
+		}
+
+		v, err := service.ReadAction(context.Background(), request)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error calling service.ReadAction: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Println("Client Requested with:")
+		fmt.Println(IDReadAction, UserIDReadAction, NameReadAction)
+		fmt.Println("Server Responded with:")
+		fmt.Println(v)
 	case "readactions":
 		var err error
 		UserIDReadActions := *flagUserIDReadActions
@@ -144,24 +167,24 @@ func main() {
 		fmt.Println(UserIDReadActions)
 		fmt.Println("Server Responded with:")
 		fmt.Println(v)
-	case "readaction":
+	case "readoccurrences":
 		var err error
-		IDReadAction := *flagIDReadAction
-		UserIDReadAction := *flagUserIDReadAction
-		ActionNameReadAction := *flagActionNameReadAction
-		request, err := clientHandler.ReadAction(IDReadAction, UserIDReadAction, ActionNameReadAction)
+		IDReadOccurrences := *flagIDReadOccurrences
+		UserIDReadOccurrences := *flagUserIDReadOccurrences
+		NameReadOccurrences := *flagNameReadOccurrences
+		request, err := clientHandler.ReadOccurrences(IDReadOccurrences, UserIDReadOccurrences, NameReadOccurrences)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error calling clientHandler.ReadAction: %v\n", err)
+			fmt.Fprintf(os.Stderr, "Error calling clientHandler.ReadOccurrences: %v\n", err)
 			os.Exit(1)
 		}
 
-		v, err := service.ReadAction(context.Background(), request)
+		v, err := service.ReadOccurrences(context.Background(), request)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error calling service.ReadAction: %v\n", err)
+			fmt.Fprintf(os.Stderr, "Error calling service.ReadOccurrences: %v\n", err)
 			os.Exit(1)
 		}
 		fmt.Println("Client Requested with:")
-		fmt.Println(IDReadAction, UserIDReadAction, ActionNameReadAction)
+		fmt.Println(IDReadOccurrences, UserIDReadOccurrences, NameReadOccurrences)
 		fmt.Println("Server Responded with:")
 		fmt.Println(v)
 	default:

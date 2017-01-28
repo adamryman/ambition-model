@@ -19,7 +19,7 @@ func (s ambitionService) CreateAction(ctx context.Context, in *pb.Action) (*pb.A
 	resp = pb.Action{
 	// ID:
 	// UserID:
-	// ActionName:
+	// Name:
 	}
 	return &resp, nil
 }
@@ -52,6 +52,15 @@ func (s ambitionService) ReadAction(ctx context.Context, in *pb.Action) (*pb.Act
 	// ID:
 	// UserID:
 	// ActionName:
+	}
+	return &resp, nil
+}
+
+// ReadOccurrences implements Service.
+func (s ambitionService) ReadOccurrences(ctx context.Context, in *pb.Action) (*pb.OccurrencesResponse, error) {
+	var resp pb.OccurrencesResponse
+	resp = pb.OccurrencesResponse{
+	// Occurrences:
 	}
 	return &resp, nil
 }

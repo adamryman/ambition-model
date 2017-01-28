@@ -95,7 +95,7 @@ th:nth-child(4) {
 | ---- | ---- | ------------ | -----------|
 | ID | TYPE_INT64 | 1 |  |
 | UserID | TYPE_INT64 | 2 |  |
-| ActionName | TYPE_STRING | 3 |  |
+| Name | TYPE_STRING | 3 |  |
 
 <a name="CreateOccurrenceRequest"></a>
 
@@ -147,10 +147,16 @@ th:nth-child(4) {
 
 | Method Name | Request Type | Response Type | Description|
 | ---- | ---- | ------------ | -----------|
-| CreateAction | Action | Action |  |
-| CreateOccurrence | CreateOccurrenceRequest | Occurrence |  |
-| ReadActions | User | ActionsResponse |  |
-| ReadAction | Action | Action |  |
+| CreateAction | Action | Action | CreateAction requires a UserID and a Name |
+| CreateOccurrence | CreateOccurrenceRequest | Occurrence | CreateOccurrence requires a UserID and Occurrence.ActionID
+ TODO: If Datetime is provided it will be used
+ TODO: If Data is provided it will be stored |
+| ReadAction | Action | Action | ReadAction requires either an ID, or BOTH a UserId and Name |
+| ReadActions | User | ActionsResponse | ReadAction
+ TODO: |
+| ReadOccurrences | Action | OccurrencesResponse | ReadOccurrences takes an action which must be populated with a
+ UserID and an ActionID which must match the values for that action
+ TODO: |
 
 #### Ambition - Http Methods
 

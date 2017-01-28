@@ -57,19 +57,6 @@ func New(conn *grpc.ClientConn, options ...ClientOption) (pb.AmbitionServer, err
 		).Endpoint()
 	}
 
-	var readactionsEndpoint endpoint.Endpoint
-	{
-		readactionsEndpoint = grpctransport.NewClient(
-			conn,
-			"ambition.Ambition",
-			"ReadActions",
-			svc.EncodeGRPCReadActionsRequest,
-			svc.DecodeGRPCReadActionsResponse,
-			pb.ActionsResponse{},
-			clientOptions...,
-		).Endpoint()
-	}
-
 	var readactionEndpoint endpoint.Endpoint
 	{
 		readactionEndpoint = grpctransport.NewClient(
@@ -83,11 +70,38 @@ func New(conn *grpc.ClientConn, options ...ClientOption) (pb.AmbitionServer, err
 		).Endpoint()
 	}
 
+	var readactionsEndpoint endpoint.Endpoint
+	{
+		readactionsEndpoint = grpctransport.NewClient(
+			conn,
+			"ambition.Ambition",
+			"ReadActions",
+			svc.EncodeGRPCReadActionsRequest,
+			svc.DecodeGRPCReadActionsResponse,
+			pb.ActionsResponse{},
+			clientOptions...,
+		).Endpoint()
+	}
+
+	var readoccurrencesEndpoint endpoint.Endpoint
+	{
+		readoccurrencesEndpoint = grpctransport.NewClient(
+			conn,
+			"ambition.Ambition",
+			"ReadOccurrences",
+			svc.EncodeGRPCReadOccurrencesRequest,
+			svc.DecodeGRPCReadOccurrencesResponse,
+			pb.OccurrencesResponse{},
+			clientOptions...,
+		).Endpoint()
+	}
+
 	return svc.Endpoints{
 		CreateActionEndpoint:     createactionEndpoint,
 		CreateOccurrenceEndpoint: createoccurrenceEndpoint,
-		ReadActionsEndpoint:      readactionsEndpoint,
 		ReadActionEndpoint:       readactionEndpoint,
+		ReadActionsEndpoint:      readactionsEndpoint,
+		ReadOccurrencesEndpoint:  readoccurrencesEndpoint,
 	}, nil
 }
 

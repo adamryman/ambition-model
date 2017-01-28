@@ -30,8 +30,9 @@ import (
 type Endpoints struct {
 	CreateActionEndpoint     endpoint.Endpoint
 	CreateOccurrenceEndpoint endpoint.Endpoint
-	ReadActionsEndpoint      endpoint.Endpoint
 	ReadActionEndpoint       endpoint.Endpoint
+	ReadActionsEndpoint      endpoint.Endpoint
+	ReadOccurrencesEndpoint  endpoint.Endpoint
 }
 
 // Endpoints
@@ -52,6 +53,14 @@ func (e Endpoints) CreateOccurrence(ctx context.Context, in *pb.CreateOccurrence
 	return response.(*pb.Occurrence), nil
 }
 
+func (e Endpoints) ReadAction(ctx context.Context, in *pb.Action) (*pb.Action, error) {
+	response, err := e.ReadActionEndpoint(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+	return response.(*pb.Action), nil
+}
+
 func (e Endpoints) ReadActions(ctx context.Context, in *pb.User) (*pb.ActionsResponse, error) {
 	response, err := e.ReadActionsEndpoint(ctx, in)
 	if err != nil {
@@ -60,12 +69,12 @@ func (e Endpoints) ReadActions(ctx context.Context, in *pb.User) (*pb.ActionsRes
 	return response.(*pb.ActionsResponse), nil
 }
 
-func (e Endpoints) ReadAction(ctx context.Context, in *pb.Action) (*pb.Action, error) {
-	response, err := e.ReadActionEndpoint(ctx, in)
+func (e Endpoints) ReadOccurrences(ctx context.Context, in *pb.Action) (*pb.OccurrencesResponse, error) {
+	response, err := e.ReadOccurrencesEndpoint(ctx, in)
 	if err != nil {
 		return nil, err
 	}
-	return response.(*pb.Action), nil
+	return response.(*pb.OccurrencesResponse), nil
 }
 
 // Make Endpoints
@@ -92,6 +101,17 @@ func MakeCreateOccurrenceEndpoint(s pb.AmbitionServer) endpoint.Endpoint {
 	}
 }
 
+func MakeReadActionEndpoint(s pb.AmbitionServer) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(*pb.Action)
+		v, err := s.ReadAction(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return v, nil
+	}
+}
+
 func MakeReadActionsEndpoint(s pb.AmbitionServer) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(*pb.User)
@@ -103,10 +123,10 @@ func MakeReadActionsEndpoint(s pb.AmbitionServer) endpoint.Endpoint {
 	}
 }
 
-func MakeReadActionEndpoint(s pb.AmbitionServer) endpoint.Endpoint {
+func MakeReadOccurrencesEndpoint(s pb.AmbitionServer) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(*pb.Action)
-		v, err := s.ReadAction(ctx, req)
+		v, err := s.ReadOccurrences(ctx, req)
 		if err != nil {
 			return nil, err
 		}
@@ -127,6 +147,7 @@ func (e *Endpoints) WrapAll(middlewares ...endpoint.Middleware) {
 
 	e.CreateActionEndpoint = m(e.CreateActionEndpoint)
 	e.CreateOccurrenceEndpoint = m(e.CreateOccurrenceEndpoint)
-	e.ReadActionsEndpoint = m(e.ReadActionsEndpoint)
 	e.ReadActionEndpoint = m(e.ReadActionEndpoint)
+	e.ReadActionsEndpoint = m(e.ReadActionsEndpoint)
+	e.ReadOccurrencesEndpoint = m(e.ReadOccurrencesEndpoint)
 }

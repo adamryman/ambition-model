@@ -66,16 +66,18 @@ func main() {
 	var (
 		createactionEndpoint     = svc.MakeCreateActionEndpoint(service)
 		createoccurrenceEndpoint = svc.MakeCreateOccurrenceEndpoint(service)
-		readactionsEndpoint      = svc.MakeReadActionsEndpoint(service)
 		readactionEndpoint       = svc.MakeReadActionEndpoint(service)
+		readactionsEndpoint      = svc.MakeReadActionsEndpoint(service)
+		readoccurrencesEndpoint  = svc.MakeReadOccurrencesEndpoint(service)
 	)
 
 	// Wrap Endpoints with middlewares. See ../middlewares/endpoints.go
 	endpoints := svc.Endpoints{
 		CreateActionEndpoint:     createactionEndpoint,
 		CreateOccurrenceEndpoint: createoccurrenceEndpoint,
-		ReadActionsEndpoint:      readactionsEndpoint,
 		ReadActionEndpoint:       readactionEndpoint,
+		ReadActionsEndpoint:      readactionsEndpoint,
+		ReadOccurrencesEndpoint:  readoccurrencesEndpoint,
 	}
 
 	// Wrap selected Endpoints with middlewares. See ../middlewares/endpoints.go
