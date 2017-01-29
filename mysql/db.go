@@ -1,24 +1,28 @@
-package sqlite
+package mysql
 
 import (
 	"database/sql"
-
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/pkg/errors"
+	//"github.com/adamryman/db"
 
 	pb "github.com/adamryman/ambition-model/ambition-service"
 )
 
-type database struct {
-	db *sql.DB
+func Open(conn string) (pb.Database, error) {
+	d, err := sql.Open("mysql", conn)
+	if err != nil {
+		return nil, errors.Wrapf(err, "cannot connect to mysql with %s", conn)
+	}
+	if err := d.Ping(); err != nil {
+		return nil, errors.Wrapf(err, "cannot make initial database connection to %s", conn)
+	}
+
+	return &database{d}, nil
 }
 
-func InitDatabase(conn string) (pb.Database, error) {
-	d, err := sql.Open("sqlite3", conn)
-	if err != nil {
-		return nil, errors.Wrapf(err, "cannot connect to %s", conn)
-	}
-	return &database{d}, nil
+type database struct {
+	db *sql.DB
 }
 
 func (d *database) CreateAction(in *pb.Action) (*pb.Action, error) {
