@@ -3,6 +3,7 @@ package handler
 import (
 	"golang.org/x/net/context"
 	"os"
+	"time"
 
 	"github.com/pkg/errors"
 
@@ -35,10 +36,17 @@ func (s ambitionService) CreateAction(ctx context.Context, in *pb.Action) (*pb.A
 
 // CreateOccurrence implements Service.
 func (s ambitionService) CreateOccurrence(ctx context.Context, in *pb.CreateOccurrenceRequest) (*pb.Occurrence, error) {
+	// TODO: Make sure database accepts this time format
+	now := time.Now().String()
+
 	occurrence := in.GetOccurrence()
 	if occurrence == nil {
 		return nil, errors.New("cannot create nil occurrence")
 	}
+	if occurrence.GetDatetime() == "" {
+		occurrence.Datetime = now
+	}
+
 	action, err := s.db.ReadActionByID(occurrence.GetActionID())
 	if err != nil {
 		// TODO: wrap error
@@ -47,6 +55,7 @@ func (s ambitionService) CreateOccurrence(ctx context.Context, in *pb.CreateOccu
 	if action.GetUserID() != in.GetUserID() {
 		return nil, errors.New("cannot create occurrence for action not owned by user")
 	}
+
 	return s.db.CreateOccurrence(occurrence)
 }
 
