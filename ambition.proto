@@ -32,8 +32,10 @@ service Ambition {
 
 message Action {
   int64 ID= 1;
-  int64 UserID= 2;
-  string Name = 3;
+  string Name = 2;
+  // TODO: Think about moving this to ambition-users
+  // with a UserAction table
+  int64 UserID= 3;
   // string TrelloID= 4;
 }
 
