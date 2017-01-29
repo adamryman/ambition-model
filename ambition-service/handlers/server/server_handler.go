@@ -24,15 +24,7 @@ func NewService() pb.AmbitionServer {
 }
 
 type ambitionService struct {
-	db AmbitionDB
-}
-
-type AmbitionDB interface {
-	CreateAction(*pb.Action) (*pb.Action, error)
-	CreateOccurrence(*pb.CreateOccurrenceRequest) (*pb.Occurrence, error)
-	ReadActionByID(*pb.Action) (*pb.Action, error)
-	ReadActionByUserIdAndName(*pb.Action) (*pb.Action, error)
-	// TODO: Add queries for all rpc's
+	db pb.Database
 }
 
 // CreateAction implements Service.
@@ -43,20 +35,28 @@ func (s ambitionService) CreateAction(ctx context.Context, in *pb.Action) (*pb.A
 
 // CreateOccurrence implements Service.
 func (s ambitionService) CreateOccurrence(ctx context.Context, in *pb.CreateOccurrenceRequest) (*pb.Occurrence, error) {
-	// TODO: Input validation
-	if in.GetOccurrence() == nil || in.UserID == 0 {
-		return nil, errors.New("cannot create occurrence, UserID or Occurrence is nil")
+	occurrence := in.GetOccurrence()
+	if occurrence == nil {
+		return nil, errors.New("cannot create nil occurrence")
 	}
-	return s.db.CreateOccurrence(in)
+	action, err := s.db.ReadActionByID(occurrence.GetActionID())
+	if err != nil {
+		// TODO: wrap error
+		return nil, err
+	}
+	if action.GetUserID() != in.GetUserID() {
+		return nil, errors.New("cannot create occurrence for action not owned by user")
+	}
+	return s.db.CreateOccurrence(occurrence)
 }
 
 // ReadAction implements Service.
 func (s ambitionService) ReadAction(ctx context.Context, in *pb.Action) (*pb.Action, error) {
 	if in.GetID() != 0 {
-		return s.db.ReadActionByID(in)
+		return s.db.ReadActionByID(in.GetID())
 	}
-	if in.GetUserID() == 0 || in.GetName() == "" {
-		return s.db.ReadActionByUserIdAndName(in)
+	if name, userID := in.GetName(), in.GetUserID(); name != "" && userID != 0 {
+		return s.db.ReadActionByNameAndUserID(name, userID)
 	}
 	return nil, errors.New("cannot read action, need ID or BOTH UserID and Name")
 }

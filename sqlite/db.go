@@ -13,7 +13,7 @@ type database struct {
 	db *sql.DB
 }
 
-func InitDatabase(conn string) (*database, error) {
+func InitDatabase(conn string) (pb.Database, error) {
 	d, err := sql.Open("sqlite3", conn)
 	if err != nil {
 		return nil, errors.Wrapf(err, "cannot connect to %s", conn)
@@ -32,39 +32,39 @@ func (d *database) CreateAction(in *pb.Action) (*pb.Action, error) {
 	return in, nil
 }
 
-func (d *database) CreateOccurrence(in *pb.CreateOccurrenceRequest) (*pb.Occurrence, error) {
-	occurrence := in.GetOccurrence()
-
+func (d *database) CreateOccurrence(in *pb.Occurrence) (*pb.Occurrence, error) {
 	const query = `INSERT occurrences SET action_id=?, datetime=?, data=?`
-	id, err := exec(d.db, query, occurrence.GetActionID(), occurrence.GetDatetime(), occurrence.GetData())
+	id, err := exec(d.db, query, in.GetActionID(), in.GetDatetime(), in.GetData())
 	if err != nil {
 		return nil, err
 	}
-	occurrence.ID = id
+	in.ID = id
 
-	return occurrence, nil
+	return in, nil
 }
 
-func (d *database) ReadActionByID(in *pb.Action) (*pb.Action, error) {
+func (d *database) ReadActionByID(id int64) (*pb.Action, error) {
 	const query = `SELECT * FROM actions WHERE id=?`
-	resp := d.db.QueryRow(query, in.GetID())
-	err := resp.Scan(in.ID, in.Name, in.UserID)
+	resp := d.db.QueryRow(query, id)
+	var action pb.Action
+	err := resp.Scan(action.ID, action.Name, action.UserID)
 	if err != nil {
 		return nil, err
 	}
 
-	return in, nil
+	return &action, nil
 }
 
-func (d *database) ReadActionByUserIdAndName(in *pb.Action) (*pb.Action, error) {
+func (d *database) ReadActionByNameAndUserID(name string, userID int64) (*pb.Action, error) {
 	const query = `SELECT * FROM actions WHERE action_name=?, user_id=?`
-	resp := d.db.QueryRow(query, in.GetName, in.GetUserID())
-	err := resp.Scan(in.ID, in.Name, in.UserID)
+	resp := d.db.QueryRow(query, name, userID)
+	var action pb.Action
+	err := resp.Scan(action.ID, action.Name, action.UserID)
 	if err != nil {
 		return nil, err
 	}
 
-	return in, nil
+	return &action, nil
 }
 
 // exec calls db.db.Exec with passed arguments and returns the id of the LastInsertId
