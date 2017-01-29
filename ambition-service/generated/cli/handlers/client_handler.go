@@ -5,11 +5,11 @@ import (
 )
 
 // CreateAction implements Service.
-func CreateAction(IDCreateAction int64, UserIDCreateAction int64, NameCreateAction string) (*pb.Action, error) {
+func CreateAction(IDCreateAction int64, NameCreateAction string, UserIDCreateAction int64) (*pb.Action, error) {
 	request := pb.Action{
 		ID:     IDCreateAction,
-		UserID: UserIDCreateAction,
 		Name:   NameCreateAction,
+		UserID: UserIDCreateAction,
 	}
 	return &request, nil
 }
@@ -24,11 +24,11 @@ func CreateOccurrence(UserIDCreateOccurrence int64, OccurrenceCreateOccurrence p
 }
 
 // ReadAction implements Service.
-func ReadAction(IDReadAction int64, UserIDReadAction int64, NameReadAction string) (*pb.Action, error) {
+func ReadAction(IDReadAction int64, NameReadAction string, UserIDReadAction int64) (*pb.Action, error) {
 	request := pb.Action{
 		ID:     IDReadAction,
-		UserID: UserIDReadAction,
 		Name:   NameReadAction,
+		UserID: UserIDReadAction,
 	}
 	return &request, nil
 }
@@ -42,11 +42,11 @@ func ReadActions(UserIDReadActions int64) (*pb.User, error) {
 }
 
 // ReadOccurrences implements Service.
-func ReadOccurrences(IDReadOccurrences int64, UserIDReadOccurrences int64, NameReadOccurrences string) (*pb.Action, error) {
+func ReadOccurrences(IDReadOccurrences int64, NameReadOccurrences string, UserIDReadOccurrences int64) (*pb.Action, error) {
 	request := pb.Action{
 		ID:     IDReadOccurrences,
-		UserID: UserIDReadOccurrences,
 		Name:   NameReadOccurrences,
+		UserID: UserIDReadOccurrences,
 	}
 	return &request, nil
 }

@@ -94,8 +94,8 @@ th:nth-child(4) {
 | Name | Type | Field Number | Description|
 | ---- | ---- | ------------ | -----------|
 | ID | TYPE_INT64 | 1 |  |
-| UserID | TYPE_INT64 | 2 |  |
-| Name | TYPE_STRING | 3 |  |
+| Name | TYPE_STRING | 2 |  |
+| UserID | TYPE_INT64 | 3 | TODO: Think about moving this to ambition-users with a UserAction table |
 
 <a name="CreateOccurrenceRequest"></a>
 
