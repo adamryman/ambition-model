@@ -8,7 +8,7 @@ import (
 
 	pb "github.com/adamryman/ambition-model/ambition-service"
 	mysql "github.com/adamryman/ambition-model/mysql"
-	"github.com/adamryman/dbconn"
+	"github.com/adamryman/kit/dbconn"
 )
 
 // NewService returns a naïve, stateless implementation of Service.
