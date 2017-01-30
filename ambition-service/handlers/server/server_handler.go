@@ -13,7 +13,7 @@ import (
 
 // NewService returns a naïve, stateless implementation of Service.
 func NewService() pb.AmbitionServer {
-	database, err := mysql.Open(dbconn.FromENV().MySQL())
+	database, err := mysql.Open(dbconn.FromENV("MYSQL").MySQL())
 	if err != nil {
 		// TODO: Do not panic, start something to try connection over and over.
 		// Maybe 100 times?
