@@ -27,7 +27,7 @@ type database struct {
 
 func (d *database) CreateAction(in *pb.Action) (*pb.Action, error) {
 	const query = `INSERT actions SET action_name=?, user_id=?`
-	id, err := exec(d.db, query, in.GetName, in.GetUserID)
+	id, err := exec(d.db, query, in.GetName(), in.GetUserID())
 	if err != nil {
 		return nil, err
 	}
