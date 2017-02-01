@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"golang.org/x/net/context"
 	"time"
 
@@ -51,10 +52,11 @@ func (s ambitionService) CreateOccurrence(ctx context.Context, in *pb.CreateOccu
 
 	action, err := s.db.ReadActionByID(occurrence.GetActionID())
 	if err != nil {
-		// TODO: wrap error
-		return nil, err
+		return nil, errors.Wrap(err, "cannot read action")
 	}
 	if action.GetUserID() != in.GetUserID() {
+		// TODO: Replace this "logging" with real logging
+		fmt.Printf("action-user-id: %d\nuser-id:%d\n", action.GetUserID(), in.GetUserID())
 		return nil, errors.New("cannot create occurrence for action not owned by user")
 	}
 
