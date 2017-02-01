@@ -51,7 +51,7 @@ func (d *database) ReadActionByID(id int64) (*pb.Action, error) {
 	const query = `SELECT * FROM actions WHERE id=?`
 	resp := d.db.QueryRow(query, id)
 	var action pb.Action
-	err := resp.Scan(action.ID, action.Name, action.UserID)
+	err := resp.Scan(&action.ID, &action.Name, &action.UserID)
 	if err != nil {
 		return nil, err
 	}
@@ -60,10 +60,10 @@ func (d *database) ReadActionByID(id int64) (*pb.Action, error) {
 }
 
 func (d *database) ReadActionByNameAndUserID(name string, userID int64) (*pb.Action, error) {
-	const query = `SELECT * FROM actions WHERE action_name=?, user_id=?`
+	const query = `SELECT * FROM actions WHERE action_name=? AND user_id=?`
 	resp := d.db.QueryRow(query, name, userID)
 	var action pb.Action
-	err := resp.Scan(action.ID, action.Name, action.UserID)
+	err := resp.Scan(&action.ID, &action.Name, &action.UserID)
 	if err != nil {
 		return nil, err
 	}
