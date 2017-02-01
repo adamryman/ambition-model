@@ -34,7 +34,11 @@ type ambitionService struct {
 // CreateAction implements Service.
 func (s ambitionService) CreateAction(ctx context.Context, in *pb.Action) (*pb.Action, error) {
 	// TODO: Input validation
-	return s.db.CreateAction(in)
+	a, err := s.db.CreateAction(in)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot create action")
+	}
+	return a, nil
 }
 
 // CreateOccurrence implements Service.
@@ -60,16 +64,29 @@ func (s ambitionService) CreateOccurrence(ctx context.Context, in *pb.CreateOccu
 		return nil, errors.New("cannot create occurrence for action not owned by user")
 	}
 
-	return s.db.CreateOccurrence(occurrence)
+	o, err := s.db.CreateOccurrence(occurrence)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot create occurrence")
+	}
+	return o, nil
 }
 
 // ReadAction implements Service.
 func (s ambitionService) ReadAction(ctx context.Context, in *pb.Action) (*pb.Action, error) {
 	if in.GetID() != 0 {
-		return s.db.ReadActionByID(in.GetID())
+		a, err := s.db.ReadActionByID(in.GetID())
+		if err != nil {
+
+			return nil, errors.Wrap(err, "cannot read action")
+		}
+		return a, nil
 	}
 	if name, userID := in.GetName(), in.GetUserID(); name != "" && userID != 0 {
-		return s.db.ReadActionByNameAndUserID(name, userID)
+		a, err := s.db.ReadActionByNameAndUserID(name, userID)
+		if err != nil {
+			return nil, errors.Wrap(err, "cannot read action")
+		}
+		return a, nil
 	}
 	return nil, errors.New("cannot read action, need ID or BOTH UserID and Name")
 }
