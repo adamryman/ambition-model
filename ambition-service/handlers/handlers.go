@@ -1,4 +1,4 @@
-package handler
+package handlers
 
 import (
 	"fmt"
@@ -8,13 +8,13 @@ import (
 	"github.com/pkg/errors"
 
 	pb "github.com/adamryman/ambition-model/ambition-service"
-	mysql "github.com/adamryman/ambition-model/mysql"
+	sql "github.com/adamryman/ambition-model/mysql"
 	"github.com/adamryman/kit/dbconn"
 )
 
 // NewService returns a naïve, stateless implementation of Service.
 func NewService() pb.AmbitionServer {
-	database, err := mysql.Open(dbconn.FromENV("MYSQL").MySQL())
+	database, err := sql.Open(dbconn.FromENV("MYSQL").MySQL())
 	if err != nil {
 		// TODO: Do not panic, start something to try connection over and over.
 		// Maybe 100 times?
@@ -28,7 +28,7 @@ func NewService() pb.AmbitionServer {
 }
 
 type ambitionService struct {
-	db pb.Database
+	db *sql.Database
 }
 
 // CreateAction implements Service.
@@ -107,6 +107,18 @@ func (s ambitionService) ReadActions(ctx context.Context, in *pb.User) (*pb.Acti
 func (s ambitionService) ReadOccurrences(ctx context.Context, in *pb.Action) (*pb.OccurrencesResponse, error) {
 	// TODO: Input validation
 	var resp pb.OccurrencesResponse
+	resp = pb.OccurrencesResponse{
+	// Occurrences:
+	}
+	return &resp, nil
+}
+
+// ReadOccurrencesByDate implements Service.
+func (s ambitionService) ReadOccurrencesByDate(ctx context.Context, in *pb.OccurrencesByDateReq) (*pb.OccurrencesResponse, error) {
+	var resp pb.OccurrencesResponse
+	if in.GetActionID() != 0 {
+
+	}
 	resp = pb.OccurrencesResponse{
 	// Occurrences:
 	}

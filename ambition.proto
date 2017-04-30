@@ -21,12 +21,24 @@ service Ambition {
   // TODO:
   rpc ReadActions(User) returns (ActionsResponse) {}
 
+  rpc ReadOccurrencesByDate(OccurrencesByDateReq) returns (OccurrencesResponse) {
+    option (google.api.http) = {
+      get: "/occurrences"
+    };
+  }
+
   // ReadOccurrences takes an action which must be populated with a
   // UserID and an ActionID which must match the values for that action
   // TODO:
   rpc ReadOccurrences(Action) returns (OccurrencesResponse) {}
 
 
+}
+
+message OccurrencesByDateReq {
+  int64 ActionID = 1;
+  string StartDate = 2;
+  string EndDate = 3;
 }
 
 

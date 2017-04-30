@@ -1,3 +1,93 @@
+# ambition
+
+## ambition.proto
+
+### Messages
+
+<a name="OccurrencesByDateReq"></a>
+
+#### OccurrencesByDateReq
+
+| Name | Type | Field Number | Description|
+| ---- | ---- | ------------ | -----------|
+| ActionID | TYPE_INT64 | 1 |  |
+| StartDate | TYPE_STRING | 2 |  |
+| EndDate | TYPE_STRING | 3 |  |
+
+<a name="Action"></a>
+
+#### Action
+
+| Name | Type | Field Number | Description|
+| ---- | ---- | ------------ | -----------|
+| ID | TYPE_INT64 | 1 |  |
+| Name | TYPE_STRING | 2 |  |
+| UserID | TYPE_INT64 | 3 | TODO: Think about moving this to ambition-users with a UserAction table |
+
+<a name="CreateOccurrenceRequest"></a>
+
+#### CreateOccurrenceRequest
+
+| Name | Type | Field Number | Description|
+| ---- | ---- | ------------ | -----------|
+| UserID | TYPE_INT64 | 1 |  |
+| Occurrence | [Occurrence](#Occurrence) | 2 |  |
+
+<a name="Occurrence"></a>
+
+#### Occurrence
+
+| Name | Type | Field Number | Description|
+| ---- | ---- | ------------ | -----------|
+| ID | TYPE_INT64 | 1 |  |
+| ActionID | TYPE_INT64 | 2 |  |
+| Datetime | TYPE_STRING | 3 |  |
+| Data | TYPE_STRING | 4 |  |
+
+<a name="User"></a>
+
+#### User
+
+| Name | Type | Field Number | Description|
+| ---- | ---- | ------------ | -----------|
+| UserID | TYPE_INT64 | 1 |  |
+
+<a name="ActionsResponse"></a>
+
+#### ActionsResponse
+
+| Name | Type | Field Number | Description|
+| ---- | ---- | ------------ | -----------|
+| Actions | [Action](#Action) | 1 |  |
+
+<a name="OccurrencesResponse"></a>
+
+#### OccurrencesResponse
+
+| Name | Type | Field Number | Description|
+| ---- | ---- | ------------ | -----------|
+| Occurrences | [Occurrence](#Occurrence) | 1 |  |
+
+### Services
+
+#### Ambition
+
+| Method Name | Request Type | Response Type | Description|
+| ---- | ---- | ------------ | -----------|
+| CreateAction | Action | Action | CreateAction requires a UserID and a Name |
+| CreateOccurrence | CreateOccurrenceRequest | Occurrence | CreateOccurrence requires a UserID and Occurrence.ActionID
+ TODO: If Datetime is provided it will be used
+ TODO: If Data is provided it will be stored |
+| ReadAction | Action | Action | ReadAction requires either an ID, or BOTH a UserId and Name |
+| ReadActions | User | ActionsResponse | ReadAction
+ TODO: |
+| ReadOccurrencesByDate | OccurrencesByDateReq | OccurrencesResponse |  |
+| ReadOccurrences | Action | OccurrencesResponse | ReadOccurrences takes an action which must be populated with a
+ UserID and an ActionID which must match the values for that action
+ TODO: |
+
+#### Ambition - Http Methods
+
 
 <style type="text/css">
 
@@ -81,82 +171,3 @@ th:nth-child(4) {
 }
 
 </style>
-# ambition
-
-## ambition.proto
-
-### Messages
-
-<a name="Action"></a>
-
-#### Action
-
-| Name | Type | Field Number | Description|
-| ---- | ---- | ------------ | -----------|
-| ID | TYPE_INT64 | 1 |  |
-| Name | TYPE_STRING | 2 |  |
-| UserID | TYPE_INT64 | 3 | TODO: Think about moving this to ambition-users with a UserAction table |
-
-<a name="CreateOccurrenceRequest"></a>
-
-#### CreateOccurrenceRequest
-
-| Name | Type | Field Number | Description|
-| ---- | ---- | ------------ | -----------|
-| UserID | TYPE_INT64 | 1 |  |
-| Occurrence | [Occurrence](#Occurrence) | 2 |  |
-
-<a name="Occurrence"></a>
-
-#### Occurrence
-
-| Name | Type | Field Number | Description|
-| ---- | ---- | ------------ | -----------|
-| ID | TYPE_INT64 | 1 |  |
-| ActionID | TYPE_INT64 | 2 |  |
-| Datetime | TYPE_STRING | 3 |  |
-| Data | TYPE_STRING | 4 |  |
-
-<a name="User"></a>
-
-#### User
-
-| Name | Type | Field Number | Description|
-| ---- | ---- | ------------ | -----------|
-| UserID | TYPE_INT64 | 1 |  |
-
-<a name="ActionsResponse"></a>
-
-#### ActionsResponse
-
-| Name | Type | Field Number | Description|
-| ---- | ---- | ------------ | -----------|
-| Actions | [Action](#Action) | 1 |  |
-
-<a name="OccurrencesResponse"></a>
-
-#### OccurrencesResponse
-
-| Name | Type | Field Number | Description|
-| ---- | ---- | ------------ | -----------|
-| Occurrences | [Occurrence](#Occurrence) | 1 |  |
-
-### Services
-
-#### Ambition
-
-| Method Name | Request Type | Response Type | Description|
-| ---- | ---- | ------------ | -----------|
-| CreateAction | Action | Action | CreateAction requires a UserID and a Name |
-| CreateOccurrence | CreateOccurrenceRequest | Occurrence | CreateOccurrence requires a UserID and Occurrence.ActionID
- TODO: If Datetime is provided it will be used
- TODO: If Data is provided it will be stored |
-| ReadAction | Action | Action | ReadAction requires either an ID, or BOTH a UserId and Name |
-| ReadActions | User | ActionsResponse | ReadAction
- TODO: |
-| ReadOccurrences | Action | OccurrencesResponse | ReadOccurrences takes an action which must be populated with a
- UserID and an ActionID which must match the values for that action
- TODO: |
-
-#### Ambition - Http Methods
-
