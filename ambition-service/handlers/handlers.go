@@ -3,18 +3,19 @@ package handlers
 import (
 	"fmt"
 	"golang.org/x/net/context"
+	"os"
 	"time"
 
 	"github.com/pkg/errors"
 
 	pb "github.com/adamryman/ambition-model/ambition-service"
-	sql "github.com/adamryman/ambition-model/mysql"
-	"github.com/adamryman/kit/dbconn"
+	sql "github.com/adamryman/ambition-model/sqlite"
+	//"github.com/adamryman/kit/dbconn"
 )
 
 // NewService returns a naïve, stateless implementation of Service.
 func NewService() pb.AmbitionServer {
-	database, err := sql.Open(dbconn.FromENV("MYSQL").MySQL())
+	database, err := sql.Open(os.Getenv("SQLITE3"))
 	if err != nil {
 		// TODO: Do not panic, start something to try connection over and over.
 		// Maybe 100 times?
