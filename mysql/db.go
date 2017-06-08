@@ -14,9 +14,9 @@ func Open(conn string) (*Database, error) {
 	if err != nil {
 		return nil, errors.Wrapf(err, "cannot connect to mysql with %s", conn)
 	}
-	if err := d.Ping(); err != nil {
-		return nil, errors.Wrapf(err, "cannot make initial database connection to %s", conn)
-	}
+	//if err := d.Ping(); err != nil {
+	//return nil, errors.Wrapf(err, "cannot make initial database connection to %s", conn)
+	//}
 
 	return &Database{d}, nil
 }

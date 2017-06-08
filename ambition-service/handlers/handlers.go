@@ -3,19 +3,22 @@ package handlers
 import (
 	"fmt"
 	"golang.org/x/net/context"
-	"os"
+	//"os"
 	"time"
 
 	"github.com/pkg/errors"
 
 	pb "github.com/adamryman/ambition-model/ambition-service"
-	sql "github.com/adamryman/ambition-model/sqlite"
-	//"github.com/adamryman/kit/dbconn"
+	//sql "github.com/adamryman/ambition-model/sqlite"
+	sql "github.com/adamryman/ambition-model/mysql"
+	"github.com/adamryman/kit/dbconn"
 )
 
 // NewService returns a naïve, stateless implementation of Service.
 func NewService() pb.AmbitionServer {
-	database, err := sql.Open(os.Getenv("SQLITE3"))
+	//database, err := sql.Open(os.Getenv("SQLITE3"))
+
+	database, err := sql.Open(dbconn.FromENV("MYSQL").MySQL())
 	if err != nil {
 		// TODO: Do not panic, start something to try connection over and over.
 		// Maybe 100 times?
@@ -45,7 +48,14 @@ func (s ambitionService) CreateAction(ctx context.Context, in *pb.Action) (*pb.A
 // CreateOccurrence implements Service.
 func (s ambitionService) CreateOccurrence(ctx context.Context, in *pb.CreateOccurrenceRequest) (*pb.Occurrence, error) {
 	// TODO: Make sure database accepts this time format
-	now := time.Now().String()
+	utc7, err := time.LoadLocation("America/Los_Angeles")
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot create time location UTC-7")
+	}
+	nowutc := time.Now()
+	fmt.Println(nowutc)
+	now := nowutc.In(utc7).String()
+	fmt.Println(now)
 
 	occurrence := in.GetOccurrence()
 	if occurrence == nil {
