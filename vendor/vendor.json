@@ -1,5 +1,11 @@
 {
 	"comment": "",
+	"heroku": {
+		"goVersion": "go1.8.1",
+		"install": [
+			"./ambition-service/cmd/ambition-server/"
+		]
+	},
 	"ignore": "test",
 	"package": [
 		{
